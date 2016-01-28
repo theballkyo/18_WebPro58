@@ -20,7 +20,7 @@
         <jsp:include page="/template/nav.jsp"/>
         <div class="container">
             <div class="row">
-                <form class="col s6 offset-s3" method="post" action="LoginServlet">
+                <form class="col s6 offset-s3" method="post" action="login">
                     <%
                         if (request.getAttribute("is_error") != null) {
                     %>

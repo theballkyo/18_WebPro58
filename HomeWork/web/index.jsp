@@ -23,14 +23,14 @@
             <p class="flow-text">สร้าง User ใหม่ !</p>
             <%
                 if (request.getAttribute("is_error") != null) {
-                    if ((boolean) request.getAttribute("is_error") == true) {
-                    %>
-                        <p class="flow-text">Error: Can't Insert Data</p>
-                    <%
-                    } else {
-                    %>
-                        <p class="flow-text">Insert Data successfully</p>
-                    <%
+                    if ((Boolean) request.getAttribute("is_error") == true) {
+            %>
+            <p class="flow-text">Error: Can't Insert Data</p>
+            <%
+            } else {
+            %>
+            <p class="flow-text">Insert Data successfully</p>
+            <%
                     }
                 }
             %>
