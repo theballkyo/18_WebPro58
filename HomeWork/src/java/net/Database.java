@@ -22,6 +22,10 @@ public class Database {
     private Connection conn;
     
     private Database() {
+        init();
+    }
+    
+    private void init() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             String url = "jdbc:mysql://database.it.kmitl.ac.th:3306/it_18";
@@ -32,7 +36,6 @@ public class Database {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
     public static Database getInstance() {
         if (db == null) {
             db = new Database();
@@ -41,6 +44,12 @@ public class Database {
     }
     
     public Connection getConn() {
+        try {
+            if (conn.isClosed())
+                init();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return conn;
     }
     
