@@ -28,7 +28,7 @@ public class Database {
     private void init() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            String url = "jdbc:mysql://database.it.kmitl.ac.th:3306/it_18";
+            String url = "jdbc:mysql://database.it.kmitl.ac.th:3306/it_18?autoReconnect=true";
             String user = "it_18";
             String pwd = "YHnRzQ75";
             conn = DriverManager.getConnection(url, user, pwd);
