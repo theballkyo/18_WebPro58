@@ -110,4 +110,12 @@ public class Customer {
                 return "Guest";
         }
     }
+    
+    public boolean isAdmin() {
+        return type == 0;
+    }
+    
+    public boolean isBoss() {
+        return type == 1;
+    }
 }
