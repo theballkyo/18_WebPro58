@@ -19,7 +19,63 @@
                     </div>
                 </div>
                 <div class="col s7">
-                    <p class="flow-text">แบบฟอร์มลาพักผ่อน</p>
+                    <p class="flow-text">แบบฟอร์มลาพักผ่อน<small> :: ลาล่วงหน้าอย่างน้อย 3 วันทำการ</small></p>
+                    <form th:action="@{/leave/save}" th:object="${LeaveForm}" method="post">
+                        <div class="row">
+                            <div class="input-field col s4">ชื่อ-นามสกุล*</div>
+                            <div class="input-field col s8">
+                                <input name="th_name" placeholder="ชื่อ-นามสกุล" id="th_name" type="text" class="validate" th:value="${session.user.toString()}" disabled="" />
+                                <label for="th_name">ชื่อ-นามสกุล</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s4">ตำแหน่ง*</div>
+                            <div class="input-field col s8">
+                                <input name="section" placeholder="ตำแหน่ง" id="section" type="text" class="validate" th:value="${session.user.section.thName}" disabled="" />
+                                <label for="section">ตำแหน่ง</label>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col s4">วันที่ลา*</div>
+                            <div class="col s8">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input name="start_at" placeholder="ตั้งแต่" id="start_at" type="text" class="validate" required="" />
+                                        <label for="start_at">ตั้งแต่</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input name="end_at" placeholder="ถึง" id="end_at" type="text" class="validate" required="" />
+                                        <label for="end_at">ถึง</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col s4">จำนวนวันที่ลา</div>
+                            <div class="input-field col s8">คำนวนแปป</div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col s4">ช่องทางการติดต่อ*</div>
+                            <div class="input-field col s8">
+                                <input name="contact" placeholder="ช่องทางการติดต่อ" id="contact" type="text" class="validate" th:value="${session.user.getMobile()}" required="required" />
+                                <label for="contact">ช่องทางการติดต่อ</label>
+                            </div>
+                        </div>
+                        <hr />  
+                        <div class="row">
+                            <div class="col s4">ผู้ปฏิบัติงานแทน</div>
+                            <div class="input-field col s8">
+                                <input name="work_represent" placeholder="ผู้ปฏิบัติงานแทน" id="work_represent" type="text" class="validate"/>
+                                <label for="work_represent">ผู้ปฏิบัติงานแทน (ใส่หรือไม่ใส่ก็ได้)</label>
+                            </div>
+                        </div>
+                        <button class="btn waves-effect waves-light">ส่งแบบฟอร์ม<i class="material-icons right">send</i></button>
+                    </form>
                 </div>
             </div>
         </div>

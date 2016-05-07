@@ -47,11 +47,11 @@ public class User implements Serializable {
     @Column(name = "section_id", updatable = false, insertable = false)
     private int sectionId;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "section_id")
     private Section section;
     
@@ -60,6 +60,9 @@ public class User implements Serializable {
     
     @OneToOne(mappedBy = "user")
     private Teacher teacher;
+    
+    @OneToMany(mappedBy = "user")
+    private Set<LeaveForm> leaveForm;
     
     public User(String username, String password, Role role) {
         super();
@@ -204,5 +207,28 @@ public class User implements Serializable {
         } else {
             return teacher.toString();
         }
+    }
+    
+    public String getMobile()
+    {
+        if (isStaff()) {
+            return staff.getMobile();
+        } else {
+            return teacher.getMobile();
+        }
+    } 
+
+    /**
+     * @return the leaveForm
+     */
+    public Set<LeaveForm> getLeaveForm() {
+        return leaveForm;
+    }
+
+    /**
+     * @param leaveForm the leaveForm to set
+     */
+    public void setLeaveForm(Set<LeaveForm> leaveForm) {
+        this.leaveForm = leaveForm;
     }
 }

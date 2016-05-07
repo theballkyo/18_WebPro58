@@ -37,4 +37,74 @@ public class Section {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager")
     private User user;
+
+    /**
+     * @return the sectionId
+     */
+    public int getSectionId() {
+        return sectionId;
+    }
+
+    /**
+     * @param sectionId the sectionId to set
+     */
+    public void setSectionId(int sectionId) {
+        this.sectionId = sectionId;
+    }
+
+    /**
+     * @return the thName
+     */
+        public String getThName() {
+        return thName;
+    }
+
+    /**
+     * @param thName the thName to set
+     */
+    public void setThName(String thName) {
+        this.thName = thName;
+    }
+
+    /**
+     * @return the enName
+     */
+    public String getEnName() {
+        return enName;
+    }
+
+    /**
+     * @param enName the enName to set
+     */
+    public void setEnName(String enName) {
+        this.enName = enName;
+    }
+
+    /**
+     * @return the manager
+     */
+    public String getManager() {
+        return manager;
+    }
+
+    /**
+     * @param manager the manager to set
+     */
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
+    /**
+     * @return the user
+     */
+    public User getUser() {
+        return user;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
