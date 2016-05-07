@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="layout :: page">
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <div th:fragment="content">
+            <div class="row">
+                <div class="col s3 offset-s2">
+                    <div class="collection with-header">
+                        <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
+                        <a th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
+                        <a th:href="@{/leave/personal}" class="collection-item">ลากิจ</a>
+                        <a th:href="@{/leave/vacation}" class="collection-item">ลาพักผ่อน</a>
+                        <a th:href="@{/leave/givebirth}" class="collection-item">ลาคลอดบุตร</a>
+                        <a th:href="@{/leave/wife}" class="collection-item">ลาไปช่วยภรรยาคลอดบุตร</a>
+                    </div>
+                </div>
+                <div class="col s7">
+                    <p th:if="${session.user.isTeacher()}" th:inline="text">ยินดีต้อนรับ [[${session.user.teacher}]]</p>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
