@@ -196,4 +196,13 @@ public class User implements Serializable {
     public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
     }
+    
+    public String toString()
+    {
+        if (isStaff()) {
+            return staff.toString();
+        } else {
+            return teacher.toString();
+        }
+    }
 }

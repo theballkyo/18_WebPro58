@@ -26,6 +26,27 @@ public class LeaveController {
         return "leave/sick";
     }
     
+    @RequestMapping(value = "/leave/personal", method = RequestMethod.GET)
+    public String getPersonal() {
+        return "leave/personal";
+    }
+    
+    @RequestMapping(value = "/leave/givebirth", method = RequestMethod.GET)
+    public String getGiveBirth() {
+        return "leave/givebirth";
+    }
+    
+    @RequestMapping(value = "/leave/vacation", method = RequestMethod.GET)
+    public String getVacation() {
+        return "leave/vacation";
+    }
+    
+    @RequestMapping(value = "/leave/wife", method = RequestMethod.GET)
+    public String getWife() {
+        return "leave/wife";
+    }
+    
+    
     @RequestMapping(value = "/leave/save", method = RequestMethod.POST)
     public String save() {
         return "";

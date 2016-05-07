@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="layout :: page">
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <div th:fragment="content">
+            <div class="row">
+                <div class="col s3 offset-s2">
+                    <div class="collection with-header">
+                        <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
+                        <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/sick}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
+                        <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/personal}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/personal}">ลากิจ</a>
+                        <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/vacation}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/vacation}">ลาพักผ่อน</a>
+                        <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/givebirth}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/givebirth}">ลาคลอดบุตร</a>
+                        <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/wife}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/wife}">ลาไปช่วยภรรยาคลอดบุตร</a>
+                    </div>
+                </div>
+                <div class="col s7">
+                    <p class="flow-text">แบบฟอร์มลาช่วยภรรยาคลอดลูก</p>
+                    <p th:text="${#httpServletRequest.requestURL}"></p>
+                    <p th:text="${#httpServletRequest.getServletPath()}"></p>
+                    <p th:text="@{leave/wife}"></p>
+                    <p th:text="@{/leave/wife}"></p>
+                    <p th:text="@{~/leave/wife}"></p>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

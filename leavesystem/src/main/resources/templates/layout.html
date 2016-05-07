@@ -18,15 +18,21 @@
         <nav class="light-blue lighten-1" role="navigation">
             <div class="nav-wrapper container"><a id="logo-container" th:href="@{/}" class="brand-logo">Logo</a>
                 <ul class="right hide-on-med-and-down">
-                    <li th:if="${session.user == null}"><a th:href="@{/login}">Login</a></li>
-                    <li><a th:href="@{/logout}" th:if="${session.user != null}">Logout</a></li>
-                    <li><a href="#" th:if="${session.user != null}" th:inline="text">Hello [[${session.user.username}]]!</a></li>
+                    <li th:if="${session.user == null}"><a th:href="@{/login}">เข้าสู่ระบบ</a></li>
+                    <th:block th:if="${session.user != null}">
+                        <li><a href="#" th:inline="text">สวัสดี [[${session.user}]]</a></li>
+                        <li><a th:href="@{/member}">หน้าสมาชิก</a></li>
+                        <li><a th:href="@{/logout}">ออกจากระบบ</a></li>
+                    </th:block>
                 </ul>
 
                 <ul id="nav-mobile" class="side-nav" style="transform: translateX(-100%);">
-                    <li><a th:href="@{/login}" th:if="${session.user == null}">Login</a></li>
-                    <li><a th:href="@{/logout}" th:if="${session.user != null}">Logout</a></li>
-                    <li><a href="#" th:if="${session.user != null}">Hello</a></li>
+                    <li><a th:href="@{/login}" th:if="${session.user == null}">เข้าสู่ระบบ</a></li>
+                    <th:block th:if="${session.user != null}">
+                        <li><a href="#" th:inline="text">สวัสดี [[${session.user}]]!</a></li>
+                        <li><a th:href="@{/member}">หน้าสมาชิก</a></li>
+                        <li><a th:href="@{/logout}">ออกจากระบบ</a></li>
+                    </th:block>
                 </ul>
                 <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
             </div>
