@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       th:include="layout :: page">
     <head>
-        <title>Login</title>
+        <title>Leave System :: ลาพักผ่อน</title>
     </head>
     <body>
         <div th:fragment="content">
@@ -21,6 +21,7 @@
                 <div class="col s7">
                     <p class="flow-text">แบบฟอร์มลาพักผ่อน<small> :: ลาล่วงหน้าอย่างน้อย 3 วันทำการ</small></p>
                     <form th:action="@{/leave/save}" th:object="${LeaveForm}" method="post">
+                        <input type="hidden" name="leave_type" value="vacation" />
                         <div class="row">
                             <div class="input-field col s4">ชื่อ-นามสกุล*</div>
                             <div class="input-field col s8">
@@ -55,8 +56,13 @@
                         </div>
                         <hr />
                         <div class="row">
+                            <div class="col s4">จำนวนวันที่เหลือที่สามารถลาได้</div>
+                            <div class="input-field col s8">XX วัน</div>
+                        </div>
+                        <hr />
+                        <div class="row">
                             <div class="col s4">จำนวนวันที่ลา</div>
-                            <div class="input-field col s8">คำนวนแปป</div>
+                            <div class="input-field col s8">XX วัน</div>
                         </div>
                         <hr />
                         <div class="row">
