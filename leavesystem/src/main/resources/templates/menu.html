@@ -1,0 +1,18 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <div th:fragment="menu" th:class="collection with-header">
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/member}) ? 'collection-item active' : 'collection-item'" th:href="@{/member}" class="collection-item">หน้าแรก</a>
+            <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/sick}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/personal}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/personal}">ลากิจ</a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/vacation}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/vacation}">ลาพักผ่อน</a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/givebirth}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/givebirth}">ลาคลอดบุตร</a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/wife}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/wife}">ลาไปช่วยภรรยาคลอดบุตร</a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/history}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/history}" class="collection-item">ประวัติการลางาน</a>
+            <a class="collection-item"><h4>ตรวจสอบ</h4></a>
+            <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/list}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/list}">รายการแจ้งการลางาน</a>
+        </div>
+    </body>
+</html>

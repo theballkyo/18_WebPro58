@@ -8,19 +8,12 @@
     <body>
         <div th:fragment="content">
             <div class="row">
-                <div class="col s3 offset-s2">
-                    <div class="collection with-header">
-                        <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
-                        <a th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
-                        <a th:href="@{/leave/personal}" class="collection-item">ลากิจ</a>
-                        <a th:href="@{/leave/vacation}" class="collection-item">ลาพักผ่อน</a>
-                        <a th:href="@{/leave/givebirth}" class="collection-item">ลาคลอดบุตร</a>
-                        <a th:href="@{/leave/wife}" class="collection-item">ลาไปช่วยภรรยาคลอดบุตร</a>
-                    </div>
+                <div class="col s3">
+                    <div th:include="menu :: menu" class="collection with-header"></div>
                 </div>
-                <div class="col s7">
+                <div class="col s9">
                     <p class="flow-text">แบบฟอร์มลากิจ</p>
-                    <form th:action="@{/leave/save}" th:object="${LeaveForm}" method="post">
+                    <form th:action="@{/leave/personal}" th:object="${LeaveForm}" method="post">
                         <input type="hidden" name="leave_type" value="sick" />
                         <div class="row">
                             <div class="input-field col s4">ชื่อ-นามสกุล*</div>
@@ -57,8 +50,8 @@
                                         <div class="row">
                                             <div class="col s2">วันที่ </div>
                                             <div class="input-field col s10">
-                                                <input name="date" placeholder="วันที่" id="date" type="text" class="validate" required="" />
-                                                <label for="date">วันที่</label>
+                                                <input name="period_date" placeholder="วันที่" id="period_date" type="text" class="validate" />
+                                                <label for="period_date">วันที่</label>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -81,13 +74,13 @@
                                     <div class="col s10">
                                         <div class="row">
                                             <div class="col s12">
-                                                <input name="start_at" placeholder="ตั้งแต่" id="start_at" type="text" class="validate" required="" />
+                                                <input name="start_at" placeholder="ตั้งแต่" id="start_at" type="text" class="validate" />
                                                 <label for="start_at">ตั้งแต่</label>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col s12">
-                                                <input name="end_at" placeholder="ถึง" id="end_at" type="text" class="validate" required="" />
+                                                <input name="end_at" placeholder="ถึง" id="end_at" type="text" class="validate" />
                                                 <label for="end_at">ถึง</label>
                                             </div>
                                         </div>

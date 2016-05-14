@@ -9,17 +9,18 @@ package com.pl.controllers;
  *
  * @author theba
  */
-import com.pl.model.Role;
 import com.pl.model.RoleDao;
 import com.pl.model.User;
 import com.pl.model.UserDao;
+
 import javax.servlet.http.HttpSession;
+import org.hibernate.Hibernate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class UserController {
@@ -30,9 +31,15 @@ public class UserController {
     @Autowired
     private RoleDao roleDao;
 
+    @Autowired
+    private HttpSession session;
+
     @RequestMapping(value = "/")
     public String Home(Model model) {
-        return "home";
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        return "redirect:/member";
     }
 
     @RequestMapping(value = "/test")
@@ -51,13 +58,15 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String DoLogin(HttpSession session, String username, String password) {
+    public String DoLogin(String username, String password) {
         User user = usersDao.findByUsernameAndPassword(username, password);
         if (user == null) {
             return "login";
         }
         session.setAttribute("user", user);
-        return "redirect:/";
+        Hibernate.initialize(user.getSection());
+        
+        return "redirect:/member";
     }
 
     @RequestMapping(value = "/logout")

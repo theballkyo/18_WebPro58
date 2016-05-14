@@ -11,6 +11,7 @@
             <div class="row">
                 <div class="col s3 offset-s2">
                     <div class="collection with-header">
+                        <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/member}) ? 'collection-item active' : 'collection-item'" th:href="@{/member}" class="collection-item">หน้าแรก</a>
                         <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
                         <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/sick}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
                         <a th:class="(${#httpServletRequest.getServletPath().toString()} == @{~/leave/personal}) ? 'collection-item active' : 'collection-item'" th:href="@{/leave/personal}">ลากิจ</a>

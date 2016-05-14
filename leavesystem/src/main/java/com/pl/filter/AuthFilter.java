@@ -49,11 +49,6 @@ public class AuthFilter implements Filter {
         if (debug) {
             log("AuthFilter:DoAfterProcessing");
         }
-
-        HttpServletRequest hsr = (HttpServletRequest) request;
-        if (hsr.getSession().getAttribute("user") == null) {
-            ((HttpServletResponse) response).sendRedirect(hsr.getContextPath() + "/");
-        }
     }
 
     /**
@@ -72,7 +67,11 @@ public class AuthFilter implements Filter {
         if (debug) {
             log("AuthFilter:doFilter()");
         }
-        
+        HttpServletRequest hsr = (HttpServletRequest) request;
+        if (hsr.getSession().getAttribute("user") == null) {
+            ((HttpServletResponse) response).sendRedirect(hsr.getContextPath() + "/");
+            return;
+        }
         doBeforeProcessing(request, response);
         
         Throwable problem = null;

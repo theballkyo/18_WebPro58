@@ -5,16 +5,20 @@
  */
 package com.pl.model;
 
+import com.pl.leave.LeaveStatus;
+import com.pl.leave.LeaveTimeType;
+import com.pl.leave.LeaveType;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.hibernate.annotations.Type;
+import javax.persistence.Transient;
 
 /**
  *
@@ -23,7 +27,6 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(name = "leave_form")
 public class LeaveForm {
-    
     @Id
     @Column(name = "leave_id", nullable = false)
     private int leaveId;
@@ -51,6 +54,9 @@ public class LeaveForm {
     
     @Column(name = "leave_type", nullable = false)
     private int leaveType;
+    
+    @Column(name = "time_type", nullable = false)
+    private int timeType;
     
     @Column(name = "leave_status", nullable = false)
     private int leaveStatus;
@@ -84,16 +90,37 @@ public class LeaveForm {
     private String username;
     
     @Column(name = "section_id", insertable = false, updatable = false, nullable = false)
-    private String sectionId;
+    private int sectionId;
     
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "username")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "work_represent")
+    private User userWorkRepresent;
     
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id")
     private Section section;
 
+    public LeaveForm() {
+        timeType = LeaveTimeType.FULL.value();
+        leaveStatus = LeaveStatus.WAIT.value();
+    }
+    
+    public LeaveForm(LeaveType lt) {
+        leaveType = lt.value();
+        timeType = LeaveTimeType.FULL.value();
+        leaveStatus = LeaveStatus.WAIT.value();
+    }
+    
+    public LeaveForm(LeaveType lt, LeaveTimeType ltt) {
+        leaveType = lt.value();
+        timeType = ltt.value();
+        leaveStatus = LeaveStatus.WAIT.value();
+    }
+    
     /**
      * @return the leaveId
      */
@@ -200,10 +227,10 @@ public class LeaveForm {
     }
 
     /**
-     * @param leaveType the leaveType to set
+     * @param type 
      */
-    public void setLeaveType(int leaveType) {
-        this.leaveType = leaveType;
+    public void setLeaveType(LeaveType type) {
+        leaveType = type.value();
     }
 
     /**
@@ -214,10 +241,10 @@ public class LeaveForm {
     }
 
     /**
-     * @param leaveStatus the leaveStatus to set
+     * @param l
      */
-    public void setLeaveStatus(int leaveStatus) {
-        this.leaveStatus = leaveStatus;
+    public void setLeaveStatus(LeaveStatus l) {
+        this.leaveStatus = l.value();
     }
 
     /**
@@ -349,14 +376,14 @@ public class LeaveForm {
     /**
      * @return the sectionId
      */
-    public String getSectionId() {
+    public int getSectionId() {
         return sectionId;
     }
 
     /**
      * @param sectionId the sectionId to set
      */
-    public void setSectionId(String sectionId) {
+    public void setSectionId(int sectionId) {
         this.sectionId = sectionId;
     }
 
@@ -386,5 +413,55 @@ public class LeaveForm {
      */
     public void setSection(Section section) {
         this.section = section;
+    }
+
+    /**
+     * @return the timeType
+     */
+    public int getTimeType() {
+        return timeType;
+    }
+
+    /**
+     * @param ltt
+     */
+    public void setTimeType(LeaveTimeType ltt) {
+        this.timeType = ltt.value();
+    }
+
+    /**
+     * @return the userWorkRepresent
+     */
+    public User getUserWorkRepresent() {
+        return userWorkRepresent;
+    }
+
+    /**
+     * @param userWorkRepresent the userWorkRepresent to set
+     */
+    public void setUserWorkRepresent(User userWorkRepresent) {
+        this.userWorkRepresent = userWorkRepresent;
+    }
+    
+    public boolean isWait() {
+        return leaveStatus == LeaveStatus.WAIT.value();
+    }
+    
+    public boolean isApprove() {
+        return leaveStatus == LeaveStatus.APRROVE.value();
+    }
+    
+    public boolean isReject() {
+        return leaveStatus == LeaveStatus.REJECT.value();
+    }
+    
+    public String getThName() {
+        for (LeaveType lt : LeaveType.values()) {
+            if (lt.value() == leaveType) {
+                return lt.thName();
+            }
+        }
+        
+        return "Unknown";
     }
 }

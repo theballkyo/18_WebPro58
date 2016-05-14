@@ -12,7 +12,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -35,6 +38,8 @@ public class User implements Serializable {
     
     @Id
     @Column(name = "username")
+    @NotNull
+    @Min(value = 19)
     private String username;
 
     @Column(name = "password")
@@ -47,18 +52,21 @@ public class User implements Serializable {
     @Column(name = "section_id", updatable = false, insertable = false)
     private int sectionId;
     
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id")
     private Section section;
     
-    @OneToOne(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)   
+    private Set<Section> manageSection;
+    
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Staff staff;
     
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Teacher teacher;
     
     @OneToMany(mappedBy = "user")
@@ -200,6 +208,7 @@ public class User implements Serializable {
         this.teacher = teacher;
     }
     
+    @Override
     public String toString()
     {
         if (isStaff()) {
@@ -231,4 +240,19 @@ public class User implements Serializable {
     public void setLeaveForm(Set<LeaveForm> leaveForm) {
         this.leaveForm = leaveForm;
     }
+
+    /**
+     * @return the manageSection
+     */
+    public Set<Section> getManageSection() {
+        return manageSection;
+    }
+
+    /**
+     * @param manageSection the manageSection to set
+     */
+    public void setManageSection(Set<Section> manageSection) {
+        this.manageSection = manageSection;
+    }
+
 }

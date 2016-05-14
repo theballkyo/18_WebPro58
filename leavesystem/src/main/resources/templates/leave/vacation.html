@@ -8,19 +8,12 @@
     <body>
         <div th:fragment="content">
             <div class="row">
-                <div class="col s3 offset-s2">
-                    <div class="collection with-header">
-                        <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
-                        <a th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
-                        <a th:href="@{/leave/personal}" class="collection-item">ลากิจ</a>
-                        <a th:href="@{/leave/vacation}" class="collection-item">ลาพักผ่อน</a>
-                        <a th:href="@{/leave/givebirth}" class="collection-item">ลาคลอดบุตร</a>
-                        <a th:href="@{/leave/wife}" class="collection-item">ลาไปช่วยภรรยาคลอดบุตร</a>
-                    </div>
+                <div class="col s3">
+                    <div th:include="menu :: menu" class="collection with-header"></div>
                 </div>
-                <div class="col s7">
+                <div class="col s9">
                     <p class="flow-text">แบบฟอร์มลาพักผ่อน<small> :: ลาล่วงหน้าอย่างน้อย 3 วันทำการ</small></p>
-                    <form th:action="@{/leave/save}" th:object="${LeaveForm}" method="post">
+                    <form th:action="@{/leave/vacation}" th:object="${LeaveForm}" method="post">
                         <input type="hidden" name="leave_type" value="vacation" />
                         <div class="row">
                             <div class="input-field col s4">ชื่อ-นามสกุล*</div>
@@ -68,7 +61,7 @@
                         <div class="row">
                             <div class="col s4">ช่องทางการติดต่อ*</div>
                             <div class="input-field col s8">
-                                <input name="contact" placeholder="ช่องทางการติดต่อ" id="contact" type="text" class="validate" th:value="${session.user.getMobile()}" required="required" />
+                                <input name="contact" placeholder="ช่องทางการติดต่อ" id="contact" type="text" class="validate" th:value="เบอร์โทรศัพท์ + ${session.user.getMobile()}" required="required" />
                                 <label for="contact">ช่องทางการติดต่อ</label>
                             </div>
                         </div>
@@ -76,8 +69,11 @@
                         <div class="row">
                             <div class="col s4">ผู้ปฏิบัติงานแทน</div>
                             <div class="input-field col s8">
-                                <input name="work_represent" placeholder="ผู้ปฏิบัติงานแทน" id="work_represent" type="text" class="validate"/>
-                                <label for="work_represent">ผู้ปฏิบัติงานแทน (ใส่หรือไม่ใส่ก็ได้)</label>
+                                <select name="work_represent">
+                                    <option value="">เลือกผู้ปฏิบัติงานแทน</option>
+                                    <option th:each="user : ${users}" th:value="${user.username}" th:text="${user.toString()}"></option>
+                                </select>
+                                <label>รายชื่อ</label>
                             </div>
                         </div>
                         <button class="btn waves-effect waves-light">ส่งแบบฟอร์ม<i class="material-icons right">send</i></button>
@@ -85,6 +81,5 @@
                 </div>
             </div>
         </div>
-
     </body>
 </html>

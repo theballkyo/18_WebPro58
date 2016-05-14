@@ -8,19 +8,12 @@
     <body>
         <div th:fragment="content">
             <div class="row">
-                <div class="col s3 offset-s2">
-                    <div class="collection with-header">
-                        <a class="collection-item"><h4>แจ้งการลางาน</h4></a>
-                        <a th:href="@{/leave/sick}" class="collection-item">ลาป่วย</a>
-                        <a th:href="@{/leave/personal}" class="collection-item">ลากิจ</a>
-                        <a th:href="@{/leave/vacation}" class="collection-item">ลาพักผ่อน</a>
-                        <a th:href="@{/leave/givebirth}" class="collection-item">ลาคลอดบุตร</a>
-                        <a th:href="@{/leave/wife}" class="collection-item">ลาไปช่วยภรรยาคลอดบุตร</a>
-                    </div>
+                <div class="col s3">
+                    <div th:include="menu :: menu" class="collection with-header"></div>
                 </div>
-                <div class="col s7">
+                <div class="col s9">
                     <p class="flow-text">แบบฟอร์มลาคลอดลูก</p>
-                    <form th:action="@{/leave/save}" th:object="${LeaveForm}" method="post">
+                    <form th:action="@{/leave/givebirth}" th:object="${LeaveForm}" method="post">
                         <input type="hidden" name="leave_type" value="vacation" />
                         <div class="row">
                             <div class="input-field col s4">ชื่อ-นามสกุล*</div>
@@ -37,6 +30,17 @@
                             </div>
                         </div>
                         <hr />
+                        <div class="row">
+                            <div class="col s4">วันที่คลอดลูก*</div>
+                            <div class="col s8">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input name="give_birth_date" placeholder="วันที่คลอดลูก" id="give_birth_date" type="text" class="validate" required="" />
+                                        <label for="give_birth_date">วันที่คลอดลูก</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col s4">วันที่ลา*</div>
                             <div class="col s8">

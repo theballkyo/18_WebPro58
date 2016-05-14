@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="layout :: page">
+    <head>
+        <title>Leave System :: รายการแจ้งการลา</title>
+    </head>
+    <body>
+        <div th:fragment="content">
+            <div class="row">
+                <div class="col s3">
+                    <div th:include="menu :: menu" class="collection with-header"></div>
+                </div>
+                <div class="col s9">
+                    <p class="flow-text">รายการแจ้งการลา</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>วันที่เขียน</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>ช่วงเวลา</th>
+                                <th>ประเภท</th>
+                                <th>ยืนยัน</th>
+                                <th>ปฏิเสธ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="lf : ${lfs}">
+                                <td th:text="${lf.leaveCreatedAt}"></td>
+                                <td th:text="${lf.user}"></td>
+                                <td th:text="${lf.leaveStartAt} + ' ถึง ' + ${lf.leaveEndAt}"></td>
+                                <td th:text="${lf.getThName()}"></td>
+                                <td><a class="btn light-green">ยืนยัน</a></td>
+                                <td><a class="btn red">ปฏิเสธ</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
