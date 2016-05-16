@@ -13,6 +13,7 @@
                 </div>
                 <div class="col s9">
                     <p class="flow-text">ประวัติการแจ้งลางาน</p>
+                    <p class="light-blue-text" th:if="${message} != null" th:text="${message}"></p>
                     <table>
                         <thead>
                             <tr>
@@ -24,12 +25,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="lf : ${lfs}">
+                            <tr th:class="${lf.isWait()} ? 'light-blue lighten-2' : (${lf.isApprove()} ? 'light-green lighten-2' : 'red lighten-2')" th:each="lf : ${lfs}">
                                 <td th:text="${lf.leaveCreatedAt}"></td>
                                 <td th:text="${lf.getThName()}"></td>
                                 <td th:text="${lf.leaveStartAt} + ' ถึง ' + ${lf.leaveEndAt}"></td>
-                                <td><a th:if="${lf.isWait()}" class="btn amber lighten-1">รอการอนุมัติ</a><a th:if="${lf.isApprove()}" class="btn light-green darken-3">อนุมิตการลา</a><a th:if="${lf.isReject()}" class="btn red accent-3">ไม่อนุมัติการลา</a></td>
-                                <td><a th:if="${lf.isWait()}" href="#" class="btn deep-orange lighten-1">ยกเลิกการลา</a></td>
+                                <td><a th:if="${lf.isWait()}" class="btn light-blue">รอการอนุมัติ</a><a th:if="${lf.isApprove()}" class="btn light-green">อนุมิตการลา</a><a th:if="${lf.isReject()}" class="btn red accent-3">ไม่อนุมัติการลา</a></td>
+                                <td><a th:if="${lf.isWait()}" th:href="@{/leave/cancel/} + ${lf.leaveId}" class="btn red">ยกเลิกการลา</a></td>
                             </tr>
                         </tbody>
                     </table>

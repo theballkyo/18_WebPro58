@@ -9,6 +9,7 @@ package com.pl.model;
  *
  * @author theba
  */
+import com.pl.leave.LeaveStatus;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.Query;
@@ -23,7 +24,7 @@ public interface LeaveFormDao extends CrudRepository<LeaveForm, Integer> {
     
     public List<LeaveForm> findByUsername(String username);
 
-    @Query("from LeaveForm lf LEFT OUTER JOIN FETCH lf.user u LEFT OUTER JOIN FETCH u.teacher t LEFT OUTER JOIN FETCH u.staff s WHERE lf.sectionId IN (?1) ")
-    public List<LeaveForm> findBySectionIdIn(List<Integer> sectionIdList);
+    @Query("from LeaveForm lf LEFT OUTER JOIN FETCH lf.user u LEFT OUTER JOIN FETCH u.teacher t LEFT OUTER JOIN FETCH u.staff s WHERE lf.sectionId IN (?1) AND lf.leaveStatus = (?2)")
+    public List<LeaveForm> findBySectionIdInAndStatus(List<Integer> sectionIdList, int status);
     
 }

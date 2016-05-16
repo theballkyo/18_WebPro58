@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  *
@@ -53,7 +54,7 @@ public class LeaveController {
 
     @Autowired
     private SectionDao sectionDao;
-
+    
     @Autowired
     private HttpSession session;
 
@@ -284,6 +285,11 @@ public class LeaveController {
     public String list(Model model) {
         User user = (User) session.getAttribute("user");
         List<Section> sections = sectionDao.findByManager(user.getUsername());
+
+        if (sections == null || sections.isEmpty()) {
+
+        }
+
         List<Integer> sectionIds = new LinkedList<>();
         for (Section section : sections) {
             sectionIds.add(section.getSectionId());
@@ -292,29 +298,31 @@ public class LeaveController {
         if (sectionIds.contains(6)) {
             lfs = (List<LeaveForm>) leaveFormDao.findAll();
         } else {
-            lfs = leaveFormDao.findBySectionIdIn(sectionIds);
+            lfs = leaveFormDao.findBySectionIdInAndStatus(sectionIds, LeaveStatus.WAIT.value());
         }
         model.addAttribute("lfs", lfs);
         return "leave/list";
     }
 
     @RequestMapping(value = "/cancel/{id}")
-    @ResponseBody
-    public String cancel(@PathVariable("id") int id) {
+    public String cancel(@PathVariable("id") int id, RedirectAttributes ra) {
         User user = ((User) session.getAttribute("user"));
         LeaveForm lf = leaveFormDao.findOne(id);
         if (lf == null) {
-            return "null";
+            ra.addFlashAttribute("message", "error");
+        } else if (!lf.getUsername().equals(user.getUsername())) {
+            ra.addFlashAttribute("message", "error");
+        } else if (!lf.isWait()) {
+            ra.addFlashAttribute("message", "waitOnly");
+        } else {
+            leaveFormDao.delete(lf);
+            ra.addFlashAttribute("message", "success");
         }
-        if (lf.getUsername().equals(user.getUsername())) {
-            return "Cancel !";
-        }
-        return "" + id;
+        return "redirect:/leave/history";
     }
 
     @RequestMapping(value = "/approve/{id}")
-    @ResponseBody
-    public String approve(@PathVariable("id") int id) {
+    public String approve(@PathVariable("id") int id, RedirectAttributes ra) {
         LeaveForm lf = leaveFormDao.findOne(id);
         if (lf == null) {
             return "null";
@@ -327,12 +335,13 @@ public class LeaveController {
         lf.setLeaveStatus(LeaveStatus.APRROVE);
 
         leaveFormDao.save(lf);
-        return "";
+
+        ra.addFlashAttribute("message", "success");
+        return "redirect:/leave/list";
     }
 
     @RequestMapping(value = "/reject/{id}")
-    @ResponseBody
-    public String reject(@PathVariable("id") int id) {
+    public String reject(@PathVariable("id") int id, RedirectAttributes ra) {
         LeaveForm lf = leaveFormDao.findOne(id);
         if (lf == null) {
             return "null";
@@ -345,6 +354,8 @@ public class LeaveController {
         lf.setLeaveStatus(LeaveStatus.REJECT);
 
         leaveFormDao.save(lf);
-        return "";
+
+        ra.addFlashAttribute("message", "success");
+        return "redirect:/leave/list";
     }
 }

@@ -9,7 +9,9 @@ package com.pl.controllers;
  *
  * @author theba
  */
+import com.pl.helper.EmailHelper;
 import com.pl.model.RoleDao;
+import com.pl.model.SectionDao;
 import com.pl.model.User;
 import com.pl.model.UserDao;
 
@@ -17,10 +19,12 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class UserController {
@@ -32,7 +36,13 @@ public class UserController {
     private RoleDao roleDao;
 
     @Autowired
+    private SectionDao sectionDao;
+
+    @Autowired
     private HttpSession session;
+
+    @Autowired
+    private EmailHelper email;
 
     @RequestMapping(value = "/")
     public String Home(Model model) {
@@ -63,9 +73,14 @@ public class UserController {
         if (user == null) {
             return "login";
         }
+        if (!sectionDao.findByManager(user.getUsername()).isEmpty()) {
+            session.setAttribute("isManager", true);
+        } else {
+            session.setAttribute("isManager", false);
+        }
         session.setAttribute("user", user);
         Hibernate.initialize(user.getSection());
-        
+
         return "redirect:/member";
     }
 
@@ -74,6 +89,14 @@ public class UserController {
         session.setAttribute("user", null);
         return "redirect:/";
     }
+
+    @RequestMapping(value = "/mail")
+    @ResponseBody
+    public String testMail() {
+        email.send("theballkyo@gmail.com", "theballkyo@gmail.com", "test Email", "TEST TEST TEST");
+        return "ok";
+    }
+
     /*
     @RequestMapping(value = "/add", method = RequestMethod.GET)
     public String Agenda(Model model) {

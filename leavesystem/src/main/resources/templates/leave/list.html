@@ -13,6 +13,7 @@
                 </div>
                 <div class="col s9">
                     <p class="flow-text">รายการแจ้งการลา</p>
+                    <p class="light-blue-text" th:if="${message} != null" th:text="${message}"></p>
                     <table>
                         <thead>
                             <tr>
@@ -30,8 +31,8 @@
                                 <td th:text="${lf.user}"></td>
                                 <td th:text="${lf.leaveStartAt} + ' ถึง ' + ${lf.leaveEndAt}"></td>
                                 <td th:text="${lf.getThName()}"></td>
-                                <td><a class="btn light-green">ยืนยัน</a></td>
-                                <td><a class="btn red">ปฏิเสธ</a></td>
+                                <td><a class="btn light-green" th:href="@{/leave/approve/} + ${lf.leaveId}">ยืนยัน</a></td>
+                                <td><a class="btn red" th:href="@{/leave/reject/} + ${lf.leaveId}">ปฏิเสธ</a></td>
                             </tr>
                         </tbody>
                     </table>
