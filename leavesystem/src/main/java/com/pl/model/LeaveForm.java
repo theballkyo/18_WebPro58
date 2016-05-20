@@ -5,6 +5,7 @@
  */
 package com.pl.model;
 
+import com.pl.helper.TimeHelper;
 import com.pl.leave.LeaveStatus;
 import com.pl.leave.LeaveTimeType;
 import com.pl.leave.LeaveType;
@@ -459,6 +460,28 @@ public class LeaveForm {
         for (LeaveType lt : LeaveType.values()) {
             if (lt.value() == leaveType) {
                 return lt.thName();
+            }
+        }
+        
+        return "Unknown";
+    }
+    
+    public String getLeaveCreatedAtFormat() {
+        return TimeHelper.formatDate(leaveCreatedAt);
+    }
+    
+    public String getLeaveStartAtFormat() {
+        return TimeHelper.formatDateNoTime(leaveStartAt);
+    }
+    
+    public String getLeaveEndAtFormat() {
+        return TimeHelper.formatDateNoTime(leaveEndAt);
+    }
+    
+    public String getLeaveTimeTypeText() {
+        for (LeaveTimeType ltt : LeaveTimeType.values()) {
+            if (ltt.value() == timeType) {
+                return ltt.thName();
             }
         }
         

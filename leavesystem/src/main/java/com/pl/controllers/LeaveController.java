@@ -5,6 +5,7 @@
  */
 package com.pl.controllers;
 
+import com.pl.helper.EmailHelper;
 import com.pl.helper.TimeHelper;
 import com.pl.leave.LeaveStatus;
 import com.pl.leave.LeaveTimeType;
@@ -25,6 +26,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Hibernate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,7 +57,10 @@ public class LeaveController {
 
     @Autowired
     private SectionDao sectionDao;
-    
+
+    @Autowired
+    private EmailHelper email;
+
     @Autowired
     private HttpSession session;
 
@@ -68,6 +74,7 @@ public class LeaveController {
 
     @RequestMapping(value = "/sick", method = RequestMethod.POST)
     public String saveSick(
+            RedirectAttributes ra,
             String reason,
             String period,
             String period_date,
@@ -107,7 +114,7 @@ public class LeaveController {
         lf.setSection(section);
         lf.setUser(user);
         lf.setLeaveStatus(LeaveStatus.WAIT);
-
+        lf.setLeaveYear("2016");
         if (period.equals("half")) {
             Date date_ = TimeHelper.strToDate(period_date);
             lf.setLeaveStartAt(date_);
@@ -123,12 +130,13 @@ public class LeaveController {
             lf.setLeaveEndAt(TimeHelper.strToDate(end_at));
         }
 
-        try {
-            leaveFormDao.save(lf);
-        } catch (Exception e) {
+        leaveFormDao.save(lf);
+        String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
+        //String toAddress = user.getSection().getUser().getEmail();
+        email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
 
-        }
-        return "leave/sick";
+        ra.addFlashAttribute("message", "saveSuccess");
+        return "redirect:/leave/history";
     }
 
     @RequestMapping(value = "/personal", method = RequestMethod.GET)
@@ -138,6 +146,7 @@ public class LeaveController {
 
     @RequestMapping(value = "/personal", method = RequestMethod.POST)
     public String savePersonal(
+            RedirectAttributes ra,
             String reason,
             String period,
             String period_date,
@@ -175,7 +184,9 @@ public class LeaveController {
         } catch (Exception e) {
 
         }
-        return "leave/personal";
+
+        ra.addFlashAttribute("message", "saveSuccess");
+        return "redirect:/leave/history";
     }
 
     @RequestMapping(value = "/givebirth", method = RequestMethod.GET)
@@ -187,6 +198,7 @@ public class LeaveController {
 
     @RequestMapping(value = "/givebirth", method = RequestMethod.POST)
     public String saveGiveBirth(
+            RedirectAttributes ra,
             @DateTimeFormat(pattern = "dd-MM-yyyy") Date start_at,
             @DateTimeFormat(pattern = "dd-MM-yyyy") Date end_at,
             @DateTimeFormat(pattern = "dd-MM-yyyy") Date give_birth_date,
@@ -204,7 +216,8 @@ public class LeaveController {
 
         leaveFormDao.save(lf);
 
-        return "leave/givebirth";
+        ra.addFlashAttribute("message", "saveSuccess");
+        return "redirect:/leave/history";
     }
 
     @RequestMapping(value = "/vacation", method = RequestMethod.GET)
@@ -217,6 +230,7 @@ public class LeaveController {
 
     @RequestMapping(value = "/vacation", method = RequestMethod.POST)
     public String saveVacation(
+            RedirectAttributes ra,
             String start_at,
             String end_at,
             String contact,
@@ -238,7 +252,8 @@ public class LeaveController {
 
         }
 
-        return "leave/vacation";
+        ra.addFlashAttribute("message", "saveSuccess");
+        return "redirect:/leave/history";
     }
 
     @RequestMapping(value = "/wife", method = RequestMethod.GET)
@@ -251,6 +266,7 @@ public class LeaveController {
 
     @RequestMapping(value = "/wife", method = RequestMethod.POST)
     public String saveWife(
+            RedirectAttributes ra,
             String wife_name,
             @DateTimeFormat(pattern = "dd-MM-yyyy") Date give_birth_date,
             @DateTimeFormat(pattern = "dd-MM-yyyy") Date start_at,
@@ -270,13 +286,15 @@ public class LeaveController {
         lf.setSection(section);
 
         leaveFormDao.save(lf);
-        return "leave/wife";
+
+        ra.addFlashAttribute("message", "saveSuccess");
+        return "redirect:/leave/history";
     }
 
     @RequestMapping(value = "/history")
     public String history(Model model) {
         String username = ((User) session.getAttribute("user")).getUsername();
-        List<LeaveForm> lfs = leaveFormDao.findByUsername(username);
+        List<LeaveForm> lfs = leaveFormDao.findByUsernameOrderByLeaveCreatedAtDesc(username);
         model.addAttribute("lfs", lfs);
         return "leave/history";
     }
@@ -298,7 +316,7 @@ public class LeaveController {
         if (sectionIds.contains(6)) {
             lfs = (List<LeaveForm>) leaveFormDao.findAll();
         } else {
-            lfs = leaveFormDao.findBySectionIdInAndStatus(sectionIds, LeaveStatus.WAIT.value());
+            lfs = leaveFormDao.findBySectionIdInAndStatusAndYearForManagerSection(sectionIds, LeaveStatus.WAIT.value(), "2016");
         }
         model.addAttribute("lfs", lfs);
         return "leave/list";
@@ -326,17 +344,15 @@ public class LeaveController {
         LeaveForm lf = leaveFormDao.findOne(id);
         if (lf == null) {
             return "null";
-        }
-
-        if (!lf.isWait()) {
+        } else if (lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3))) {
+            ra.addFlashAttribute("message", "No time");
+        } else if (!lf.isWait()) {
             return "Not wait";
+        } else {
+            lf.setLeaveStatus(LeaveStatus.APRROVE);
+            leaveFormDao.save(lf);
+            ra.addFlashAttribute("message", "success");
         }
-
-        lf.setLeaveStatus(LeaveStatus.APRROVE);
-
-        leaveFormDao.save(lf);
-
-        ra.addFlashAttribute("message", "success");
         return "redirect:/leave/list";
     }
 
@@ -345,17 +361,15 @@ public class LeaveController {
         LeaveForm lf = leaveFormDao.findOne(id);
         if (lf == null) {
             return "null";
-        }
-
-        if (!lf.isWait()) {
+        } else if (lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3))) {
+            ra.addFlashAttribute("message", "No time");
+        } else if (!lf.isWait()) {
             return "Not wait";
+        } else {
+            lf.setLeaveStatus(LeaveStatus.REJECT);
+            leaveFormDao.save(lf);
+            ra.addFlashAttribute("message", "success");
         }
-
-        lf.setLeaveStatus(LeaveStatus.REJECT);
-
-        leaveFormDao.save(lf);
-
-        ra.addFlashAttribute("message", "success");
         return "redirect:/leave/list";
     }
 }

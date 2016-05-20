@@ -19,6 +19,7 @@
                             <tr>
                                 <th>วันที่เขียน</th>
                                 <th>ชื่อ-นามสกุล</th>
+                                <th>วันที่</th>
                                 <th>ช่วงเวลา</th>
                                 <th>ประเภท</th>
                                 <th>ยืนยัน</th>
@@ -27,9 +28,10 @@
                         </thead>
                         <tbody>
                             <tr th:each="lf : ${lfs}">
-                                <td th:text="${lf.leaveCreatedAt}"></td>
+                                <td th:text="${lf.leaveCreatedAtFormat}"></td>
                                 <td th:text="${lf.user}"></td>
-                                <td th:text="${lf.leaveStartAt} + ' ถึง ' + ${lf.leaveEndAt}"></td>
+                                <td th:text="${lf.leaveStartAtFormat} + ' ถึง ' + ${lf.leaveEndAtFormat}"></td>
+                                <td th:text="${lf.leaveTimeTypeText}"></td>
                                 <td th:text="${lf.getThName()}"></td>
                                 <td><a class="btn light-green" th:href="@{/leave/approve/} + ${lf.leaveId}">ยืนยัน</a></td>
                                 <td><a class="btn red" th:href="@{/leave/reject/} + ${lf.leaveId}">ปฏิเสธ</a></td>

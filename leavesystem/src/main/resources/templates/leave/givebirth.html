@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       th:include="layout :: page">
     <head>
-        <title>Login</title>
+        <title>Leave System :: ลาคลอดบุตร</title>
     </head>
     <body>
         <div th:fragment="content">
@@ -12,7 +12,7 @@
                     <div th:include="menu :: menu" class="collection with-header"></div>
                 </div>
                 <div class="col s9">
-                    <p class="flow-text">แบบฟอร์มลาคลอดลูก</p>
+                    <p class="flow-text">แบบฟอร์มลาคลอดบุตร</p>
                     <form th:action="@{/leave/givebirth}" th:object="${LeaveForm}" method="post">
                         <input type="hidden" name="leave_type" value="vacation" />
                         <div class="row">

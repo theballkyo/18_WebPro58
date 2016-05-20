@@ -32,10 +32,10 @@ public class User implements Serializable {
 
     @Transient
     final private int TEACHER_ROLE_NUM = 1;
-    
+
     @Transient
     final private int STAFF_ROLE_NUM = 2;
-    
+
     @Id
     @Column(name = "username")
     @NotNull
@@ -51,7 +51,7 @@ public class User implements Serializable {
 
     @Column(name = "section_id", updatable = false, insertable = false)
     private int sectionId;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
@@ -59,19 +59,19 @@ public class User implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id")
     private Section section;
-    
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)   
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Section> manageSection;
-    
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Staff staff;
-    
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Teacher teacher;
-    
+
     @OneToMany(mappedBy = "user")
     private Set<LeaveForm> leaveForm;
-    
+
     public User(String username, String password, Role role) {
         super();
         this.username = username;
@@ -143,11 +143,11 @@ public class User implements Serializable {
     public User() {
         super();
     }
-    
+
     public boolean isTeacher() {
         return this.roleId == TEACHER_ROLE_NUM;
     }
-    
+
     public boolean isStaff() {
         return this.roleId == STAFF_ROLE_NUM;
     }
@@ -207,25 +207,37 @@ public class User implements Serializable {
     public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
     }
-    
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         if (isStaff()) {
             return staff.toString();
-        } else {
+        } else if (isTeacher()) {
             return teacher.toString();
+        }  else {
+            return "Unknown";
         }
     }
-    
-    public String getMobile()
-    {
+
+    public String getMobile() {
         if (isStaff()) {
             return staff.getMobile();
-        } else {
+        } else if (isTeacher()) {
             return teacher.getMobile();
+        }  else {
+            return "Unknown";
         }
-    } 
+    }
+
+    public String getEmail() {
+        if (isStaff()) {
+            return staff.getEmail();
+        } else if (isTeacher()) {
+            return teacher.getEmail();
+        } else {
+            return "Unknown";
+        }
+    }
 
     /**
      * @return the leaveForm

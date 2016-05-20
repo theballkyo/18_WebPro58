@@ -10,11 +10,13 @@ package com.pl.leave;
  * @author theba
  */
 public enum LeaveTimeType {
-    FULL (1), MORNING (2), AFTERNOON (3);
+    FULL (1, "เต็มวัน"), MORNING (2, "ช่วงเช้า"), AFTERNOON (3, "ช่วงบ่าย");
     
     private final int statusValue;
-    LeaveTimeType(int statusValue) {
+    private final String thName;
+    LeaveTimeType(int statusValue, String thName) {
         this.statusValue = statusValue;
+        this.thName = thName;
     }
     
     /**
@@ -23,5 +25,9 @@ public enum LeaveTimeType {
      */
     public int value() {
         return this.statusValue;
+    }
+    
+    public String thName() {
+        return this.thName;
     }
 }

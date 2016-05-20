@@ -5,9 +5,15 @@
  */
 package com.pl.helper;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,15 +24,32 @@ import org.springframework.stereotype.Service;
 public class EmailHelper {
 
     @Autowired
-    private MailSender mailSender;
+    private JavaMailSender mailSender;
 
+    public void send(String toAddress, String subject, String msgBody) {
+        send(toAddress, "abcmcuser.1@gmail.com", subject, msgBody);
+    }
+    
     public void send(String toAddress, String fromAddress, String subject, String msgBody) {
-        SimpleMailMessage crunchifyMsg = new SimpleMailMessage();
-        crunchifyMsg.setFrom(fromAddress);
-        crunchifyMsg.setTo(toAddress);
-        crunchifyMsg.setSubject(subject);
-        crunchifyMsg.setText(msgBody);
-        mailSender.send(crunchifyMsg);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
+            mimeMessage.setContent(msgBody, "text/html");
+            helper.setTo(toAddress);
+            helper.setSubject(subject);
+            helper.setFrom(fromAddress);
+            /*
+            SimpleMailMessage crunchifyMsg = new SimpleMailMessage();
+            crunchifyMsg.setFrom(fromAddress);
+            crunchifyMsg.setTo(toAddress);
+            crunchifyMsg.setSubject(subject);
+            crunchifyMsg.setText(msgBody);
+            */
+            mailSender.send(mimeMessage);
+        } catch (MessagingException ex) {
+            Logger.getLogger(EmailHelper.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
