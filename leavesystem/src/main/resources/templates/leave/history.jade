@@ -1,0 +1,30 @@
+extends ../layouts/member.jade
+
+block rcontent
+  p.flow-text ประวัติการแจ้งลางาน
+  if message
+    p.light-blue-text #{message}
+  table
+    thead
+      tr
+        th วันที่เขียน
+        th ประเภท
+        th ช่วงเวลา
+        th สถานะ
+        th ยกเลิก
+    tbody
+      for lf in lfs
+        tr
+          td #{lf.leaveCreatedAt}
+          td #{lf.getThName()}
+          td #{lf.leaveStartAt} ถึง #{lf.leaveEndAt}
+          td
+            if lf.isWait()
+              a.btn.light-blue รอการอนุมัติ
+            else if lf.isApprove()
+              a.btn.light-green อนุมิตการลา
+            else
+              a.btn.red.accent-3 ไม่อนุมัติการลา
+          td
+            if lf.isWait()
+              a.btn.red(href='#{url.create("/leave/cancel/" + lf.leaveId)}') ยกเลิกการลา

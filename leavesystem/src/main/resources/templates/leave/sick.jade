@@ -1,0 +1,82 @@
+extends ../layouts/member.jade
+
+block rcontent
+  p.flow-text แบบฟอร์มลาป่วย
+  form(action='#{url.create("/leave/sick")}', method='post', enctype='multipart/form-data')
+  input(type='hidden', name='leave_type', value='sick')
+  .row
+    .input-field.col.s4 ชื่อ-นามสกุล*
+    .input-field.col.s8
+      input#th_name.validate(name='th_name', placeholder='ชื่อ-นามสกุล', type='text', th:value='${session.user.toString()}', disabled='')
+      label(for='th_name') ชื่อ-นามสกุล
+  .row
+    .input-field.col.s4 ตำแหน่ง*
+    .input-field.col.s8
+      input#section.validate(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
+      label(for='section') ตำแหน่ง
+  hr
+  .row
+    .input-field.col.s4 สาเหตุการลา*
+    .input-field.col.s8
+      input#reason.validate(name='reason', placeholder='ตำแหน่ง', type='text', required='')
+      label(for='reason') สาเหตุการลา
+  hr
+  .row
+    .col.s4 วันที่ลา*
+    .col.s8
+      .row
+        .col.s2
+          input#half(type='radio', name='period', value='half')
+          label(for='half') ครึ่งวัน
+        .col.s10
+          .row
+            .col.s2 วันที่ 
+            .input-field.col.s10
+              input#period_date.validate(name='period_date', placeholder='วันที่', type='text')
+              label(for='period_date') วันที่
+          .row
+            .col.s6
+              input#morning(type='radio', name='period_time', value='morning')
+              label(for='morning') ช่วงเช้า (8.30 - 12.00 น.)
+            .col.s6
+              input#afternoon(type='radio', name='period_time', value='afternoon')
+              label(for='afternoon') ช่วงบ่าย (13.00 - 16.30 น.)
+      .row
+        .col.s2
+          input#full(type='radio', name='period', value='full')
+          label(for='full') เต็มวัน
+        .col.s10
+          .row
+            .col.s12
+              input#start_at.validate(name='start_at', placeholder='ตั้งแต่', type='text', required='')
+              label(for='start_at') ตั้งแต่
+          .row
+            .col.s12
+              input#end_at.validate(name='end_at', placeholder='ถึง', type='text', required='')
+              label(for='end_at') ถึง
+  hr
+  .row
+    .col.s4 จำนวนวันที่เหลือที่สามารถลาได้
+    .input-field.col.s8 XX วัน
+  hr
+  .row
+    .col.s4 จำนวนวันที่ลา
+    .input-field.col.s8 XX วัน
+  hr
+  .row
+    .col.s4 ช่องทางการติดต่อ*
+    .input-field.col.s8
+      input#contact.validate(name='contact', placeholder='ช่องทางการติดต่อ', type='text', th:value="${session.user.getMobile()} != null ? 'เบอร์โทรศัพท์ ' +  ${session.user.getMobile()}: ''", required='required')
+      label(for='contact') ช่องทางการติดต่อ
+  hr
+  .row
+    .col.s4 ใบรับรองแพทย์
+    .col.s8.file-field.input-field
+      .btn
+        span เลือกรูปภาพ
+        input(name='medical_certificate', type='file')
+      .file-path-wrapper
+        input.file-path.validate(type='text', placeholder='เลือกรูปภาพใบรับรองแพทย์')
+  button.btn.waves-effect.waves-light
+    | ส่งแบบฟอร์ม
+    i.material-icons.right send

@@ -1,0 +1,16 @@
+extends ./main.jade
+block content
+  .row
+    .col.s3
+      .collection.with-header
+        a.collection-item(href='#{url.create("/member")}') หน้าแรก
+        a.collection-item(href='#{url.create("/leave/sick")}') ลาป่วย
+        a.collection-item(href='#{url.create("/leave/personal")}') ลากิจ
+        a.collection-item(href='#{url.create("/leave/vacation")}') ลาพักผ่อน
+        a.collection-item(href='#{url.create("/leave/givebirth")}') ลาคลอดบุตร
+        a.collection-item(href='#{url.create("/leave/wife")}') ลาไปช่วยภรรยาคลอดบุตร
+        a.collection-item(href='#{url.create("/leave/history")}') ประวัติการลา
+        if session.get("isManager")
+          a.collection-item(href='#{url.create("/leave/list")}') รายงานแจ้งการลางาน
+    .col.s9
+      block rcontent

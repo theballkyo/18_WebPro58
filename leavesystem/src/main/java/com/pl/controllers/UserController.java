@@ -54,7 +54,12 @@ public class UserController {
 
     @RequestMapping(value = "/test")
     public String Test(Model model) {
-        return "test";
+        session.setAttribute("test", "hello");
+        
+        // model.addAttribute("session", session);
+
+        model.addAttribute("abc", "aaaaa");
+        return "index"; 
     }
 
     @RequestMapping(value = "/member", method = RequestMethod.GET)

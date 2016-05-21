@@ -1,0 +1,28 @@
+extends ../layouts/member.jade
+
+block rcontent
+  p.flow-text รายการแจ้งการลา
+  if message
+    p.light-blue-text #{message}
+  table
+    thead
+      tr
+        th วันที่เขียน
+        th ชื่อ-นามสกุล
+        th วันที่
+        th ช่วงเวลา
+        th ประเภท
+        th ยืนยัน
+        th ปฏิเสธ
+    tbody
+      for lf in lfs
+        tr
+          td #{lf.leaveCreatedAtFormat}
+          td #{lf.user}
+          td #{lf.leaveStartAtFormat} ถึง #{lf.leaveEndAtFormat}
+          td #{lf.leaveTimeTypeText}
+          td #{lf.getThName()}
+          td
+            a.btn.light-green(href='#{url.create("/leave/approve/" + lf.leaveId)}') ยืนยัน
+          td
+            a.btn.red(href='#{url.create("/leave/reject/" + lf.leaveId)}') ปฏิเสธ

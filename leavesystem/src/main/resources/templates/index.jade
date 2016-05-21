@@ -1,0 +1,85 @@
+doctype html
+html
+  head
+    title Leave System 1.0 Preview
+    link(href='http://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+    // Import materialize.css
+    link(rel='stylesheet', href='#{url.create("/css/materialize.min.css")}')
+    // Let browser know website is optimized for mobile
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+  body(data-gr-c-s-loaded='true')
+    nav.light-blue.lighten-1(role='navigation')
+      .nav-wrapper.container
+        a#logo-container.brand-logo(th:href='@{/}') Logo
+        ul.right.hide-on-med-and-down
+          if !session.get("user")
+            li
+              a(href='#{url.create("/login")}') เข้าสู่ระบบ
+          else
+              li
+                a(href='#') สวัสดี #{session.get("user")}
+              li
+                a(href='#{url.create("/member")}') หน้าสมาชิก
+              li
+                a(href='#{url.create("/logout")}') ออกจากระบบ
+        ul#nav-mobile.side-nav(style='transform: translateX(-100%);')
+          if !session.get("user")
+            li
+              a(href='#{url.create("/login")}') เข้าสู่ระบบ
+          else
+              li
+                a(href='#') สวัสดี #{session.get("user")}
+              li
+                a(href='#{url.create("/member")}') หน้าสมาชิก
+              li
+                a(href='#{url.create("/logout")}') ออกจากระบบ
+        a.button-collapse(href='#', data-activates='nav-mobile')
+          i.material-icons menu
+    #index-banner.section.no-pad-bot
+      .container
+        block content
+      footer.page-footer.light-blue.lighten-1
+        .container
+          .row
+            .col.l6.s12
+              h5.white-text Company Bio
+              p.grey-text.text-lighten-4
+                | We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.
+            .col.l3.s12
+              h5.white-text Settings
+              ul
+                li
+                  a.white-text(href='#!') Link 1
+                li
+                  a.white-text(href='#!') Link 2
+                li
+                  a.white-text(href='#!') Link 3
+                li
+                  a.white-text(href='#!') Link 4
+            .col.l3.s12
+              h5.white-text Connect
+              ul
+                li
+                  a.white-text(href='#!') Link 1
+                li
+                  a.white-text(href='#!') Link 2
+                li
+                  a.white-text(href='#!') Link 3
+                li
+                  a.white-text(href='#!') Link 4
+        .footer-copyright
+          .container
+            | Made by 
+            a.orange-text.text-lighten-3(href='http://materializecss.com') Materialize
+      // Scripts
+      script(type='text/javascript', src='https://code.jquery.com/jquery-2.1.1.min.js')
+      script(src='#{url.create("/js/materialize.min.js")}').
+      script(src='#{url.create("/js/picker.date.js")}').
+      script.
+        $(document).ready(function () {
+        $('select').material_select();
+        });
+      .hiddendiv.common
+      .drag-target(style='left: 0px; touch-action: pan-y; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);')

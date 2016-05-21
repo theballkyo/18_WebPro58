@@ -1,0 +1,58 @@
+extends ../layouts/member.jade
+
+block rcontent
+  p.flow-text แบบฟอร์มลาช่วยภรรยาคลอดบัตร
+  form(action='#{url.create("/leave/wife")}', method='post')
+    input(type='hidden', name='leave_type', value='wife')
+    .row
+      .input-field.col.s4 ชื่อ-นามสกุล*
+      .input-field.col.s8
+        input#th_name.validate(name='th_name', placeholder='ชื่อ-นามสกุล', type='text', th:value='${session.user.toString()}', disabled='')
+        label(for='th_name') ชื่อ-นามสกุล
+    .row
+      .input-field.col.s4 ตำแหน่ง*
+      .input-field.col.s8
+        input#section.validate(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
+        label(for='section') ตำแหน่ง
+    hr
+    .row
+      .input-field.col.s4 ชื่อภรรยา*
+      .input-field.col.s8
+        input#wife_name.validate(name='wife_name', placeholder='ชื่อภรรยา', type='text', required='')
+        label(for='wife_name') ชื่อภรรยา
+    hr
+    .row
+      .input-field.col.s4 วันที่คลอดบัตร*
+      .input-field.col.s8
+        input#give_birth_date.validate(name='give_birth_date', placeholder='วันที่คลอดบัตร', type='text', required='')
+        label(for='give_birth_date') วันที่คลอดบัตร
+    hr
+    .row
+      .col.s4 วันที่ลา*
+      .col.s8
+        .row
+          .input-field.col.s12
+            input#start_at.validate(name='start_at', placeholder='ตั้งแต่', type='text', required='')
+            label(for='start_at') ตั้งแต่
+        .row
+          .input-field.col.s12
+            input#end_at.validate(name='end_at', placeholder='ถึง', type='text', required='')
+            label(for='end_at') ถึง
+    hr
+    .row
+      .col.s4 จำนวนวันที่เหลือที่สามารถลาได้
+      .input-field.col.s8 XX วัน
+    hr
+    .row
+      .col.s4 จำนวนวันที่ลา
+      .input-field.col.s8 XX วัน
+    hr
+    .row
+      .col.s4 ช่องทางการติดต่อ*
+      .input-field.col.s8
+        input#contact.validate(name='contact', placeholder='ช่องทางการติดต่อ', type='text', th:value='${session.user.getMobile()}', required='required')
+        label(for='contact') ช่องทางการติดต่อ
+    hr
+    button.btn.waves-effect.waves-light
+      | ส่งแบบฟอร์ม
+      i.material-icons.right send
