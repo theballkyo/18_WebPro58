@@ -14,8 +14,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -50,7 +48,7 @@ public class User implements Serializable {
     private int roleId;
 
     @Column(name = "section_id", updatable = false, insertable = false)
-    private int sectionId;
+    private Integer sectionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")

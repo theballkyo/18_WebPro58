@@ -14,6 +14,7 @@ import com.pl.model.RoleDao;
 import com.pl.model.SectionDao;
 import com.pl.model.User;
 import com.pl.model.UserDao;
+import javax.servlet.http.HttpServletRequest;
 
 import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
@@ -53,13 +54,18 @@ public class UserController {
     }
 
     @RequestMapping(value = "/test")
-    public String Test(Model model) {
+    @ResponseBody
+    public String Test(Model model, HttpServletRequest req) {
+        /*
         session.setAttribute("test", "hello");
         
         // model.addAttribute("session", session);
 
         model.addAttribute("abc", "aaaaa");
         return "index"; 
+        */
+        
+        return req.getServletContext().getRealPath("/resources/imgs");
     }
 
     @RequestMapping(value = "/member", method = RequestMethod.GET)

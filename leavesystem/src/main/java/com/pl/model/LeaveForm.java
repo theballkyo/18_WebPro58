@@ -13,13 +13,15 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -30,6 +32,7 @@ import javax.persistence.Transient;
 public class LeaveForm {
     @Id
     @Column(name = "leave_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int leaveId;
     
     @Column(name = "leave_created_at", nullable = false)
@@ -38,10 +41,12 @@ public class LeaveForm {
     
     @Column(name = "leave_start_at", nullable = false)
     @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date leaveStartAt;
     
     @Column(name = "leave_end_at", nullable = false)
     @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date leaveEndAt;
     
     @Column(name = "leave_year", nullable = false)
@@ -76,6 +81,7 @@ public class LeaveForm {
     
     @Column(name = "give_birth_date")
     @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date giveBirthDate;
     
     @Column(name = "reason")

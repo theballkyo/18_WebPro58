@@ -1,5 +1,35 @@
 extends ../layouts/member.jade
+block append script
+  script.
+    $(document).ready(function () {
+        $total = $("#total");
+        $('.datepicker').pickadate({
+            monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            weekdaysFull: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            format: 'dd-mm-yyyy',
+            min: 3,
+            disable: [
+                1, 7
+            ],
+            onClose: function() {
+                var startP = $("#startAt").val().split("-");
+                var startDate = new Date(startP[2], startP[1] - 1, startP[0]);
 
+                var endP = $("#endAt").val().split("-");
+                var endDate = new Date(endP[2], endP[1] - 1, endP[0]);
+                console.log(startDate + ":" + endDate);
+                if (startDate !== "Invalid Date" && endDate !== "Invalid Date") {
+                    var total = calcBusinessDays(startDate, endDate);
+                    console.log(total);
+                    if (total !== NaN && total !== -1) {
+                        $total.text(total + " ");
+                    }
+                }
+            }
+        });
+    });
 block rcontent
   p.flow-text แบบฟอร์มลาช่วยภรรยาคลอดบัตร
   form(action='#{url.create("/leave/wife")}', method='post')
@@ -24,28 +54,30 @@ block rcontent
     .row
       .input-field.col.s4 วันที่คลอดบัตร*
       .input-field.col.s8
-        input#give_birth_date.validate(name='give_birth_date', placeholder='วันที่คลอดบัตร', type='text', required='')
-        label(for='give_birth_date') วันที่คลอดบัตร
+        input#giveBirthDate.datepicker(name='giveBirthDate', placeholder='วันที่คลอดบัตร', type='text', required='')
+        label(for='giveBirthDate') วันที่คลอดบัตร
     hr
     .row
       .col.s4 วันที่ลา*
       .col.s8
         .row
           .input-field.col.s12
-            input#start_at.validate(name='start_at', placeholder='ตั้งแต่', type='text', required='')
-            label(for='start_at') ตั้งแต่
+            input#startAt.datepicker(name='leaveStartAt', placeholder='ตั้งแต่', type='text', required='')
+            label(for='startAt') ตั้งแต่
         .row
           .input-field.col.s12
-            input#end_at.validate(name='end_at', placeholder='ถึง', type='text', required='')
-            label(for='end_at') ถึง
+            input#endAt.datepicker(name='leaveEndAt', placeholder='ถึง', type='text', required='')
+            label(for='endAt') ถึง
     hr
     .row
       .col.s4 จำนวนวันที่เหลือที่สามารถลาได้
-      .input-field.col.s8 XX วัน
+      .input-field.col.s8 #{remain} วัน
     hr
     .row
       .col.s4 จำนวนวันที่ลา
-      .input-field.col.s8 XX วัน
+      .input-field.col.s8
+        span#total 0 
+        | วัน
     hr
     .row
       .col.s4 ช่องทางการติดต่อ*

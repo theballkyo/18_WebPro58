@@ -10,7 +10,7 @@ package com.pl.leave;
  * @author theba
  */
 public enum LeaveType {
-    SICK (1, "ลาป่วย"), PERSONAL (2, "ลากิจ"), VACATION (3, "ลาพักผ่อน"), GIVE_BIRTH (4, "ลาคลอด"), WIFE (5, "ลาช่วยภรรยาคลอด");
+    SICK (1, "ลาป่วย"), PERSONAL (2, "ลากิจ"), VACATION (3, "ลาพักผ่อน"), GIVE_BIRTH (4, "ลาคลอด"), WIFE (5, "ลาช่วยภรรยาคลอดบุตร");
     
     private final int statusValue;
     private final String statusThName;

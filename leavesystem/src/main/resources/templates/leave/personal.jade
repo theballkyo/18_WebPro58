@@ -1,5 +1,32 @@
 extends ../layouts/member.jade
-
+block append script
+  script.
+    $(document).ready(function () {
+        selectChange();
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        var min_date = -1;
+        if (yesterday.getDay() === 6) {
+            min_date = -2;
+        }
+        else if (yesterday.getDay() === 7) {
+            min_date = -3;
+        }
+        $('.datepicker').pickadate({
+            monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            weekdaysFull: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            format: 'dd-mm-yyyy',
+            min: min_date,
+            disable: [
+                1, 7
+            ],
+            onClose: function() {
+                calDay();
+            }
+        });
+    });
 block rcontent
   p.flow-text แบบฟอร์มลากิจ
   form(action='#{url.create("/leave/personal")}', method='post')
@@ -26,42 +53,47 @@ block rcontent
       .col.s8
         .row
           .col.s2
-            input#half(type='radio', name='period', value='half')
-            label(for='half') ครึ่งวัน
+            input#morning(type='radio', name='timeType', value='2')
+            label(for='morning') ช่วงเช้า
           .col.s10
             .row
-              .col.s2 วันที่ 
-              .input-field.col.s10
-                input#period_date.validate(name='period_date', placeholder='วันที่', type='text')
-                label(for='period_date') วันที่
-            .row
-              .col.s6
-                input#morning(type='radio', name='period_time', value='morning')
-                label(for='morning') ช่วงเช้า (8.30 - 12.00 น.)
-              .col.s6
-                input#afternoon(type='radio', name='period_time', value='afternoon')
-                label(for='afternoon') ช่วงบ่าย (13.00 - 16.30 น.)
+              .input-field.col.s12
+                input#startAtM.datepicker(name='leaveStartAt', placeholder='วันที่', type='text', disabled, required='')
+                label(for='startAtM') วันที่
+                ช่วงเช้าเวลา 08.30 - 12.00 น.
         .row
           .col.s2
-            input#full(type='radio', name='period', value='full')
+            input#afternoon(type='radio', name='timeType', value='3')
+            label(for='afternoon') ช่วงบ่าย
+          .col.s10
+            .row
+              .input-field.col.s12
+                input#startAtA.datepicker(name='leaveStartAt', placeholder='วันที่', type='text', disabled, required='')
+                label(for='startAtA_date') วันที่
+                ช่วงบ่ายเวลา 13.00 - 16.30 น.
+        .row
+          .col.s2
+            input#full(type='radio', name='timeType', value='1', checked)
             label(for='full') เต็มวัน
           .col.s10
             .row
               .col.s12
-                input#start_at.validate(name='start_at', placeholder='ตั้งแต่', type='text')
-                label(for='start_at') ตั้งแต่
+                input#startAt.datepicker(name='leaveStartAt', placeholder='ตั้งแต่', type='text', required='')
+                label(for='startAt') ตั้งแต่
             .row
               .col.s12
-                input#end_at.validate(name='end_at', placeholder='ถึง', type='text')
-                label(for='end_at') ถึง
+                input#endAt.datepicker(name='leaveEndAt', placeholder='ถึง', type='text', required='')
+                label(for='endAt') ถึง
     hr
     .row
       .col.s4 จำนวนวันที่เหลือที่สามารถลาได้
-      .input-field.col.s8 XX วัน
+      .input-field.col.s8 #{remain} วัน
     hr
     .row
       .col.s4 จำนวนวันที่ลา
-      .input-field.col.s8 XX วัน
+      .input-field.col.s8
+        span#total 0 
+        | วัน
     hr
     .row
       .col.s4 ช่องทางการติดต่อ*

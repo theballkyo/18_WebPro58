@@ -75,11 +75,13 @@ html
             a.orange-text.text-lighten-3(href='http://materializecss.com') Materialize
       // Scripts
       script(type='text/javascript', src='https://code.jquery.com/jquery-2.1.1.min.js')
-      script(src='#{url.create("/js/materialize.min.js")}').
-      script(src='#{url.create("/js/picker.date.js")}').
+      script(src='#{url.create("/js/materialize.min.js")}')
+      script(src='#{url.create("/js/picker.date.js")}')
+      script(src='#{url.create("/js/leave.js")}')
       script.
         $(document).ready(function () {
         $('select').material_select();
         });
+      block script
       .hiddendiv.common
       .drag-target(style='left: 0px; touch-action: pan-y; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);')

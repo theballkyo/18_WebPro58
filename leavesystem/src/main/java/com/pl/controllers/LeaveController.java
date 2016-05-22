@@ -12,6 +12,8 @@ import com.pl.leave.LeaveTimeType;
 import com.pl.leave.LeaveType;
 import com.pl.model.LeaveForm;
 import com.pl.model.LeaveFormDao;
+import com.pl.model.LeaveRemain;
+import com.pl.model.LeaveRemainDao;
 import com.pl.model.Section;
 import com.pl.model.SectionDao;
 import com.pl.model.User;
@@ -21,19 +23,22 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.Hibernate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,6 +64,9 @@ public class LeaveController {
     private SectionDao sectionDao;
 
     @Autowired
+    private LeaveRemainDao leaveRemainDao;
+
+    @Autowired
     private EmailHelper email;
 
     @Autowired
@@ -68,43 +76,44 @@ public class LeaveController {
     private HttpServletRequest req;
 
     @RequestMapping(value = "/sick", method = RequestMethod.GET)
-    public String getSick() {
+    public String getSick(Model model) {
+        User user = (User) session.getAttribute("user");
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.SICK.value());
+        model.addAttribute("remain", lr.getAmount());
         return "leave/sick";
     }
 
     @RequestMapping(value = "/sick", method = RequestMethod.POST)
+    @ResponseBody
     public String saveSick(
             RedirectAttributes ra,
-            String reason,
-            String period,
-            String period_date,
-            String period_time,
-            String start_at,
-            String end_at,
-            String contact,
+            Model model,
+            @ModelAttribute("leaveForm") LeaveForm leaveForm,
+            BindingResult result,
             MultipartFile medical_certificate) {
+
+        Map<String, String> errors = new HashMap<>();
+        model.addAttribute("errors", errors);
 
         if (!medical_certificate.isEmpty()) {
             try {
                 String fileName = medical_certificate.getOriginalFilename();
 
                 BufferedOutputStream stream = new BufferedOutputStream(
-                        new FileOutputStream(new File("/" + fileName)));
+                        new FileOutputStream(new File(req.getServletContext().getRealPath("/resources/imgs/") + fileName)));
 
-                // Write file
                 FileCopyUtils.copy(medical_certificate.getInputStream(), stream);
                 stream.close();
-                /*
-                redirectAttributes.addFlashAttribute("message",
-                        "You successfully uploaded " + name + "!");
-                 */
-            } catch (Exception e) {/*
-                redirectAttributes.addFlashAttribute("message",
-                        "You failed to upload " + name + " => " + e.getMessage());
-                 */
-            }
-        }
 
+            } catch (Exception e) {
+                errors.put("medical_certificate", "การเขียนไฟล์ภาพมีปัญหา");
+                return "leave/sick";
+            }
+        } else {
+            errors.put("medical_certificate", "กรุณาเลือกไฟล์ด้วย");
+        }
+        return leaveForm.getLeaveStartAt().toString();
+        /*
         LeaveForm lf = new LeaveForm();
         User user = (User) session.getAttribute("user");
         Section section = user.getSection();
@@ -116,9 +125,8 @@ public class LeaveController {
         lf.setLeaveStatus(LeaveStatus.WAIT);
         lf.setLeaveYear("2016");
         if (period.equals("half")) {
-            Date date_ = TimeHelper.strToDate(period_date);
-            lf.setLeaveStartAt(date_);
-            lf.setLeaveEndAt(date_);
+            lf.setLeaveStartAt(period_date);
+            lf.setLeaveEndAt(period_date);
 
             if (period_time.equals("morning")) {
                 lf.setTimeType(LeaveTimeType.MORNING);
@@ -126,21 +134,25 @@ public class LeaveController {
                 lf.setTimeType(LeaveTimeType.AFTERNOON);
             }
         } else if (period.equals("full")) {
-            lf.setLeaveStartAt(TimeHelper.strToDate(start_at));
-            lf.setLeaveEndAt(TimeHelper.strToDate(end_at));
+            lf.setLeaveStartAt(start_at);
+            lf.setLeaveEndAt(end_at);
         }
 
         leaveFormDao.save(lf);
         String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
         //String toAddress = user.getSection().getUser().getEmail();
         email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
-
+        
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
+         */
     }
 
     @RequestMapping(value = "/personal", method = RequestMethod.GET)
     public String getPersonal(Model model) {
+        User user = (User) session.getAttribute("user");
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.PERSONAL.value());
+        model.addAttribute("remain", lr.getAmount());
         return "leave/personal";
     }
 
@@ -190,9 +202,10 @@ public class LeaveController {
     }
 
     @RequestMapping(value = "/givebirth", method = RequestMethod.GET)
-    public String getGiveBirth() {
-        LeaveForm lf = new LeaveForm();
-        lf.setLeaveType(LeaveType.GIVE_BIRTH);
+    public String getGiveBirth(Model model) {
+        User user = (User) session.getAttribute("user");
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.GIVE_BIRTH.value());
+        model.addAttribute("remain", lr.getAmount());
         return "leave/givebirth";
     }
 
@@ -223,6 +236,10 @@ public class LeaveController {
     @RequestMapping(value = "/vacation", method = RequestMethod.GET)
     public String getVacation(Model model) {
         User user = (User) session.getAttribute("user");
+
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.VACATION.value());
+        model.addAttribute("remain", lr.getAmount());
+
         List<User> users = userDao.findBySectionIdAndFetch(user.getSectionId());
         model.addAttribute("users", users);
         return "leave/vacation";
@@ -257,10 +274,11 @@ public class LeaveController {
     }
 
     @RequestMapping(value = "/wife", method = RequestMethod.GET)
-    public String getWife() {
+    public String getWife(Model model) {
+        User user = (User) session.getAttribute("user");
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.WIFE.value());
+        model.addAttribute("remain", lr.getAmount());
 
-        LeaveForm lf = new LeaveForm();
-        lf.setLeaveType(LeaveType.WIFE);
         return "leave/wife";
     }
 
