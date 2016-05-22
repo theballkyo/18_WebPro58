@@ -46,7 +46,9 @@ public class TimeHelper {
 
     public static int countDayNoWeekEnd(Date start, Date end) {
         //Ignore argument check
-
+        if (start == null || end == null || start.after(end)) {
+            return -1;
+        }
         Calendar c1 = Calendar.getInstance();
         c1.setTime(start);
         int w1 = c1.get(Calendar.DAY_OF_WEEK);

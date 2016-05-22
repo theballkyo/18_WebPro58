@@ -37,7 +37,7 @@ block rcontent
     | แบบฟอร์มลาพักผ่อน
     small  :: ลาล่วงหน้าอย่างน้อย 3 วันทำการ
   form(action='#{url.create("/leave/vacation")}', method='post')
-    input(type='hidden', name='leave_type', value='vacation')
+    input(type='hidden', name='leaveType', value='3')
     .row
       .input-field.col.s4 ชื่อ-นามสกุล*
       .input-field.col.s8
@@ -74,13 +74,12 @@ block rcontent
     .row
       .col.s4 ช่องทางการติดต่อ*
       .input-field.col.s8
-        input#contact.validate(name='contact', placeholder='ช่องทางการติดต่อ', type='text', th:value='เบอร์โทรศัพท์ + ${session.user.getMobile()}', required='required')
-        label(for='contact') ช่องทางการติดต่อ
+        include ./components/contact.jade
     hr
     .row
       .col.s4 ผู้ปฏิบัติงานแทน
       .input-field.col.s8
-        select(name='work_represent')
+        select(name='workRepresent')
           option(value='') เลือกผู้ปฏิบัติงานแทน
           for user in users
             option(value='#{user.username}') #{user.toString()}

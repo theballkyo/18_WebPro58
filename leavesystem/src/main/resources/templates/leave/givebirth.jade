@@ -33,7 +33,7 @@ block append script
 block rcontent
   p.flow-text แบบฟอร์มลาคลอดบุตร
   form(action='#{url.create("/leave/givebirth")}', method='post')
-    input(type='hidden', name='leave_type', value='vacation')
+    input(type='hidden', name='leaveType', value='5')
     .row
       .input-field.col.s4 ชื่อ-นามสกุล*
       .input-field.col.s8
@@ -45,13 +45,6 @@ block rcontent
         input#section.validate(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
         label(for='section') ตำแหน่ง
     hr
-    .row
-      .col.s4 วันที่คลอดลูก*
-      .col.s8
-        .row
-          .input-field.col.s12
-            input#give_birth_date.validate(name='give_birth_date', placeholder='วันที่คลอดลูก', type='text', required='')
-            label(for='give_birth_date') วันที่คลอดลูก
     .row
       .col.s4 วันที่ลา*
       .col.s8
@@ -77,8 +70,7 @@ block rcontent
     .row
       .col.s4 ช่องทางการติดต่อ*
       .input-field.col.s8
-        input#contact.validate(name='contact', placeholder='ช่องทางการติดต่อ', type='text', th:value='${session.user.getMobile()}', required='required')
-        label(for='contact') ช่องทางการติดต่อ
+        include ./components/contact.jade
     button.btn.waves-effect.waves-light
       | ส่งแบบฟอร์ม
       i.material-icons.right send

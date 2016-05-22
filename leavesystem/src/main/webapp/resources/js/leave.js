@@ -55,16 +55,22 @@ var selectChange = function () {
         if ($this.val() === "1") {
             $("#startAtA").prop("disabled", true);
             $("#startAtM").prop("disabled", true);
+            $("#endAtA").prop("disabled", true);
+            $("#endAtM").prop("disabled", true);
             $("#startAt").prop("disabled", false);
             $("#endAt").prop("disabled", false);
         } else if ($this.val() === "2") {
             $("#startAtM").prop("disabled", false);
             $("#startAtA").prop("disabled", true);
+            $("#endAtA").prop("disabled", true);
+            $("#endAtM").prop("disabled", false);
             $("#startAt").prop("disabled", true);
             $("#endAt").prop("disabled", true);
         } else if ($this.val() === "3") {
             $("#startAtA").prop("disabled", false);
             $("#startAtM").prop("disabled", true);
+            $("#endAtA").prop("disabled", false);
+            $("#endAtM").prop("disabled", true);
             $("#startAt").prop("disabled", true);
             $("#endAt").prop("disabled", true);
         }

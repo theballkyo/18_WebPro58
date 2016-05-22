@@ -24,13 +24,15 @@ block append script
             ],
             onClose: function() {
                 calDay();
+                $("#endAtA").val($("#startAtA").val());
+                $("#endAtM").val($("#startAtM").val());
             }
         });
     });
 block rcontent
   p.flow-text แบบฟอร์มลากิจ
   form(action='#{url.create("/leave/personal")}', method='post')
-    input(type='hidden', name='leave_type', value='sick')
+    input(type='hidden', name='leaveType', value='2')
     .row
       .input-field.col.s4 ชื่อ-นามสกุล*
       .input-field.col.s8
@@ -59,6 +61,7 @@ block rcontent
             .row
               .input-field.col.s12
                 input#startAtM.datepicker(name='leaveStartAt', placeholder='วันที่', type='text', disabled, required='')
+                input#endAtM(type="hidden", name='leaveEndAt', disabled)
                 label(for='startAtM') วันที่
                 ช่วงเช้าเวลา 08.30 - 12.00 น.
         .row
@@ -69,6 +72,7 @@ block rcontent
             .row
               .input-field.col.s12
                 input#startAtA.datepicker(name='leaveStartAt', placeholder='วันที่', type='text', disabled, required='')
+                input#endAtA(type="hidden", name='leaveEndAt', disabled)
                 label(for='startAtA_date') วันที่
                 ช่วงบ่ายเวลา 13.00 - 16.30 น.
         .row
@@ -98,8 +102,7 @@ block rcontent
     .row
       .col.s4 ช่องทางการติดต่อ*
       .input-field.col.s8
-        input#contact.validate(name='contact', placeholder='ช่องทางการติดต่อ', type='text', th:value="${session.user.getMobile()} != null ? 'เบอร์โทรศัพท์ ' +  ${session.user.getMobile()}: ''", required='required')
-        label(for='contact') ช่องทางการติดต่อ
+        include ./components/contact.jade
     hr
     button.btn.waves-effect.waves-light
       | ส่งแบบฟอร์ม

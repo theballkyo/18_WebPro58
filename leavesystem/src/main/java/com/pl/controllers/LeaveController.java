@@ -38,6 +38,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import validator.LeaveSickValidator;
 
 /**
  *
@@ -84,7 +87,6 @@ public class LeaveController {
     }
 
     @RequestMapping(value = "/sick", method = RequestMethod.POST)
-    @ResponseBody
     public String saveSick(
             RedirectAttributes ra,
             Model model,
@@ -112,40 +114,36 @@ public class LeaveController {
         } else {
             errors.put("medical_certificate", "กรุณาเลือกไฟล์ด้วย");
         }
-        return leaveForm.getLeaveStartAt().toString();
-        /*
-        LeaveForm lf = new LeaveForm();
+
+        LeaveSickValidator lsv = new LeaveSickValidator();
+        lsv.validate(leaveForm, result);
+        
+        if (result.hasErrors()) {
+            ra.addFlashAttribute("errors", result.getFieldErrors());
+            /*
+            String a = "";
+            for (FieldError error : result.getFieldErrors()) {
+                a += error.toString();
+            }
+            */
+            return "redirect:/leave/sick";
+        }
+        
         User user = (User) session.getAttribute("user");
         Section section = user.getSection();
-        lf.setLeaveType(LeaveType.SICK);
-        lf.setLeaveContact(contact);
-        lf.setReason(reason);
-        lf.setSection(section);
-        lf.setUser(user);
-        lf.setLeaveStatus(LeaveStatus.WAIT);
-        lf.setLeaveYear("2016");
-        if (period.equals("half")) {
-            lf.setLeaveStartAt(period_date);
-            lf.setLeaveEndAt(period_date);
 
-            if (period_time.equals("morning")) {
-                lf.setTimeType(LeaveTimeType.MORNING);
-            } else if (period_time.equals("afternoon")) {
-                lf.setTimeType(LeaveTimeType.AFTERNOON);
-            }
-        } else if (period.equals("full")) {
-            lf.setLeaveStartAt(start_at);
-            lf.setLeaveEndAt(end_at);
-        }
+        leaveForm.setUser(user);
+        leaveForm.setSection(section);
+        leaveForm.setLeaveYear("2016");
 
-        leaveFormDao.save(lf);
-        String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
-        //String toAddress = user.getSection().getUser().getEmail();
-        email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
-        
+        leaveFormDao.save(leaveForm);
+        // String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
+        // String toAddress = user.getSection().getUser().getEmail();
+        // email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
+
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
-         */
+        //return leaveForm.getLeaveType() +"";
     }
 
     @RequestMapping(value = "/personal", method = RequestMethod.GET)
@@ -159,43 +157,21 @@ public class LeaveController {
     @RequestMapping(value = "/personal", method = RequestMethod.POST)
     public String savePersonal(
             RedirectAttributes ra,
-            String reason,
-            String period,
-            String period_date,
-            String period_time,
-            String start_at,
-            String end_at,
-            String contact) {
-        LeaveForm lf = new LeaveForm();
+            Model model,
+            @ModelAttribute("leaveForm") LeaveForm leaveForm,
+            BindingResult result) {
+
         User user = (User) session.getAttribute("user");
         Section section = user.getSection();
-        lf.setLeaveType(LeaveType.PERSONAL);
-        lf.setLeaveContact(contact);
-        lf.setReason(reason);
-        lf.setSection(section);
-        lf.setUser(user);
-        lf.setLeaveStatus(LeaveStatus.WAIT);
 
-        if (period.equals("half")) {
-            Date date_ = TimeHelper.strToDate(period_date);
-            lf.setLeaveStartAt(date_);
-            lf.setLeaveEndAt(date_);
+        leaveForm.setUser(user);
+        leaveForm.setSection(section);
+        leaveForm.setLeaveYear("2016");
 
-            if (period_time.equals("morning")) {
-                lf.setTimeType(LeaveTimeType.MORNING);
-            } else if (period_time.equals("afternoon")) {
-                lf.setTimeType(LeaveTimeType.AFTERNOON);
-            }
-        } else if (period.equals("full")) {
-            lf.setLeaveStartAt(TimeHelper.strToDate(start_at));
-            lf.setLeaveEndAt(TimeHelper.strToDate(end_at));
-        }
-
-        try {
-            leaveFormDao.save(lf);
-        } catch (Exception e) {
-
-        }
+        leaveFormDao.save(leaveForm);
+        // String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
+        // String toAddress = user.getSection().getUser().getEmail();
+        // email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
@@ -212,22 +188,18 @@ public class LeaveController {
     @RequestMapping(value = "/givebirth", method = RequestMethod.POST)
     public String saveGiveBirth(
             RedirectAttributes ra,
-            @DateTimeFormat(pattern = "dd-MM-yyyy") Date start_at,
-            @DateTimeFormat(pattern = "dd-MM-yyyy") Date end_at,
-            @DateTimeFormat(pattern = "dd-MM-yyyy") Date give_birth_date,
-            String contact) {
-        LeaveForm lf = new LeaveForm();
-        lf.setLeaveStartAt(start_at);
-        lf.setLeaveEndAt(end_at);
-        lf.setLeaveContact(contact);
-        lf.setGiveBirthDate(give_birth_date);
-
+            Model model,
+            @ModelAttribute("leaveForm") LeaveForm leaveForm,
+            BindingResult result) {
+        
         User user = (User) session.getAttribute("user");
         Section section = user.getSection();
-        lf.setUser(user);
-        lf.setSection(section);
 
-        leaveFormDao.save(lf);
+        leaveForm.setUser(user);
+        leaveForm.setSection(section);
+        leaveForm.setLeaveYear("2016");
+
+        leaveFormDao.save(leaveForm);
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
@@ -248,26 +220,22 @@ public class LeaveController {
     @RequestMapping(value = "/vacation", method = RequestMethod.POST)
     public String saveVacation(
             RedirectAttributes ra,
-            String start_at,
-            String end_at,
-            String contact,
-            String work_represent) {
-        LeaveForm lf = new LeaveForm(LeaveType.VACATION);
-        lf.setLeaveStartAt(TimeHelper.strToDate(start_at));
-        lf.setLeaveEndAt(TimeHelper.strToDate(end_at));
-        lf.setLeaveContact(contact);
-        lf.setWorkRepresent(work_represent);
+            Model model,
+            @ModelAttribute("leaveForm") LeaveForm leaveForm,
+            BindingResult result) {
 
         User user = (User) session.getAttribute("user");
         Section section = user.getSection();
-        lf.setUser(user);
-        lf.setSection(section);
 
-        try {
-            leaveFormDao.save(lf);
-        } catch (Exception e) {
-
+        leaveForm.setUser(user);
+        leaveForm.setSection(section);
+        leaveForm.setLeaveYear("2016");
+        User workRepresent = userDao.findOne(leaveForm.getWorkRepresent());
+        if (workRepresent != null) {
+            leaveForm.setUserWorkRepresent(workRepresent);
         }
+        
+        leaveFormDao.save(leaveForm);
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
@@ -285,25 +253,18 @@ public class LeaveController {
     @RequestMapping(value = "/wife", method = RequestMethod.POST)
     public String saveWife(
             RedirectAttributes ra,
-            String wife_name,
-            @DateTimeFormat(pattern = "dd-MM-yyyy") Date give_birth_date,
-            @DateTimeFormat(pattern = "dd-MM-yyyy") Date start_at,
-            @DateTimeFormat(pattern = "dd-MM-yyyy") Date end_at,
-            String contact) {
-
-        LeaveForm lf = new LeaveForm(LeaveType.WIFE);
-        lf.setLeaveStartAt(start_at);
-        lf.setLeaveEndAt(end_at);
-        lf.setGiveBirthDate(give_birth_date);
-        lf.setWifeName(wife_name);
-        lf.setLeaveContact(contact);
+            Model model,
+            @ModelAttribute("leaveForm") LeaveForm leaveForm,
+            BindingResult result) {
 
         User user = (User) session.getAttribute("user");
         Section section = user.getSection();
-        lf.setUser(user);
-        lf.setSection(section);
 
-        leaveFormDao.save(lf);
+        leaveForm.setUser(user);
+        leaveForm.setSection(section);
+        leaveForm.setLeaveYear("2016");
+
+        leaveFormDao.save(leaveForm);
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";

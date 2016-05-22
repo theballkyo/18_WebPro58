@@ -33,23 +33,23 @@ block append script
 block rcontent
   p.flow-text แบบฟอร์มลาช่วยภรรยาคลอดบัตร
   form(action='#{url.create("/leave/wife")}', method='post')
-    input(type='hidden', name='leave_type', value='wife')
+    input(type='hidden', name='leaveType', value='4')
     .row
       .input-field.col.s4 ชื่อ-นามสกุล*
       .input-field.col.s8
-        input#th_name.validate(name='th_name', placeholder='ชื่อ-นามสกุล', type='text', th:value='${session.user.toString()}', disabled='')
+        input#th_name(name='th_name', placeholder='ชื่อ-นามสกุล', type='text', th:value='${session.user.toString()}', disabled='')
         label(for='th_name') ชื่อ-นามสกุล
     .row
       .input-field.col.s4 ตำแหน่ง*
       .input-field.col.s8
-        input#section.validate(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
+        input#section(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
         label(for='section') ตำแหน่ง
     hr
     .row
       .input-field.col.s4 ชื่อภรรยา*
       .input-field.col.s8
-        input#wife_name.validate(name='wife_name', placeholder='ชื่อภรรยา', type='text', required='')
-        label(for='wife_name') ชื่อภรรยา
+        input#wifeName(name='wifeName', placeholder='ชื่อภรรยา', type='text', required='')
+        label(for='wifeName') ชื่อภรรยา
     hr
     .row
       .input-field.col.s4 วันที่คลอดบัตร*
@@ -82,8 +82,7 @@ block rcontent
     .row
       .col.s4 ช่องทางการติดต่อ*
       .input-field.col.s8
-        input#contact.validate(name='contact', placeholder='ช่องทางการติดต่อ', type='text', th:value='${session.user.getMobile()}', required='required')
-        label(for='contact') ช่องทางการติดต่อ
+        include ./components/contact.jade
     hr
     button.btn.waves-effect.waves-light
       | ส่งแบบฟอร์ม

@@ -233,6 +233,10 @@ public class LeaveForm {
         return leaveType;
     }
 
+    public void setLeaveType(int type) {
+        leaveType = type;
+    }
+    
     /**
      * @param type 
      */
@@ -429,6 +433,10 @@ public class LeaveForm {
         return timeType;
     }
 
+    public void setTimeType(int timeType) {
+        this.timeType = timeType;
+    }
+    
     /**
      * @param ltt
      */
