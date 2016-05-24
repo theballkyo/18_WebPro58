@@ -38,13 +38,11 @@ block rcontent
     .row
       .input-field.col.s4 ชื่อ-นามสกุล*
       .input-field.col.s8
-        input#th_name.validate(name='th_name', placeholder='ชื่อ-นามสกุล', type='text', th:value='${session.user.toString()}', disabled='')
-        label(for='th_name') ชื่อ-นามสกุล
+        include ./components/name.jade
     .row
-      .input-field.col.s4 ตำแหน่ง*
+      .input-field.col.s4 หน่วยงาน
       .input-field.col.s8
-        input#section.validate(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
-        label(for='section') ตำแหน่ง
+        include ./components/section.jade
     hr
     .row
       .input-field.col.s4 สาเหตุการลา*
@@ -110,10 +108,10 @@ block rcontent
       .col.s4 ใบรับรองแพทย์
       .col.s8.file-field.input-field
         .btn
-          span เลือกรูปภาพ
+          span เลือกไฟล์
           input(name='medical_certificate', type='file')
         .file-path-wrapper
-          input.file-path.validate(type='text', placeholder='เลือกรูปภาพใบรับรองแพทย์')
+          input.file-path.validate(type='text', placeholder='เลือกไฟล์ใบรับรองแพทย์')
     button.btn.waves-effect.waves-light
       | ส่งแบบฟอร์ม
       i.material-icons.right send

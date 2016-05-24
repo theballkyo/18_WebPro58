@@ -39,7 +39,7 @@ public class LeaveRemain implements Serializable {
     private int leaveTypeId;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leave_type")
@@ -52,14 +52,14 @@ public class LeaveRemain implements Serializable {
     /**
      * @return the amount
      */
-    public int getAmount() {
+    public double getAmount() {
         return amount;
     }
 
     /**
      * @param amount the amount to set
      */
-    public void setAmount(int amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 

@@ -8,10 +8,12 @@ package com.pl.model;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -34,8 +36,11 @@ public class LeaveType {
     private int amountDefault;
     
     @OneToMany(mappedBy = "leaveType")
-    private List<LeaveRemain> leaveRemain;
+    private List<LeaveRemain> leaveRemains;
 
+    @OneToOne(mappedBy = "leaveType", fetch = FetchType.LAZY)
+    private LeaveRemain leaveRemain;
+    
     /**
      * @return the id
      */
@@ -67,15 +72,15 @@ public class LeaveType {
     /**
      * @return the leaveRemain
      */
-    public List<LeaveRemain> getLeaveRemain() {
-        return leaveRemain;
+    public List<LeaveRemain> getLeaveRemains() {
+        return leaveRemains;
     }
 
     /**
-     * @param leaveRemain the leaveRemain to set
+     * @param leaveRemains the leaveRemain to set
      */
-    public void setLeaveRemain(List<LeaveRemain> leaveRemain) {
-        this.leaveRemain = leaveRemain;
+    public void setLeaveRemains(List<LeaveRemain> leaveRemains) {
+        this.leaveRemains = leaveRemains;
     }
 
     /**
@@ -90,6 +95,20 @@ public class LeaveType {
      */
     public void setAmountDefault(int amountDefault) {
         this.amountDefault = amountDefault;
+    }
+
+    /**
+     * @return the leaveRemain
+     */
+    public LeaveRemain getLeaveRemain() {
+        return leaveRemain;
+    }
+
+    /**
+     * @param leaveRemain the leaveRemain to set
+     */
+    public void setLeaveRemain(LeaveRemain leaveRemain) {
+        this.leaveRemain = leaveRemain;
     }
     
     

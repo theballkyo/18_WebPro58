@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -30,6 +31,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Entity
 @Table(name = "leave_form")
 public class LeaveForm {
+
     @Id
     @Column(name = "leave_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -98,6 +100,9 @@ public class LeaveForm {
     
     @Column(name = "section_id", insertable = false, updatable = false, nullable = false)
     private int sectionId;
+    
+    @Transient
+    private LeaveRemain leaveRemain;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "username")
@@ -251,6 +256,10 @@ public class LeaveForm {
         return leaveStatus;
     }
 
+    public void setLeaveStatus(int leaveStatus) {
+        this.leaveStatus = leaveStatus;
+    }
+    
     /**
      * @param l
      */
@@ -500,5 +509,19 @@ public class LeaveForm {
         }
         
         return "Unknown";
+    }
+
+    /**
+     * @return the leaveRemain
+     */
+    public LeaveRemain getLeaveRemain() {
+        return leaveRemain;
+    }
+
+    /**
+     * @param leaveRemain the leaveRemain to set
+     */
+    public void setLeaveRemain(LeaveRemain leaveRemain) {
+        this.leaveRemain = leaveRemain;
     }
 }

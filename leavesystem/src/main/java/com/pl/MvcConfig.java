@@ -27,7 +27,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
                 .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver());
-        
+
         registry
                 .addResourceHandler("/css/**")
                 .addResourceLocations("/resources/css/")
@@ -46,6 +46,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
                 .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver());
-        
+
     }
+
 }

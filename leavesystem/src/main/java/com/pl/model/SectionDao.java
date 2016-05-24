@@ -19,4 +19,6 @@ import org.springframework.stereotype.Repository;
 public interface SectionDao extends CrudRepository<Section, Integer> {
 
     public List<Section> findByManager(String username);
+    
+    public int countByManagerAndSectionId(String username, int sectionId);
 }

@@ -1,4 +1,18 @@
 extends ./layouts/member.jade
 
 block rcontent
-  ยินดีต้อนรับ #{session.get("user").toString()}
+  p สิทธิการลา
+  table.striped.highlight.centered 
+    thead
+      tr
+        th ประเภทการลา
+        th สิทธิการลา (วัน)
+        th สิทธิที่เหลือ (วัน)
+    tbody
+      for leave in leaves
+        tr
+          td #{leave.getThName()}
+          td #{leave.getAmountDefault()}
+          td #{leave.getLeaveRemain().getAmount()}
+  p
+    small 0.5 หมายถึงการลาครึ่งวัน

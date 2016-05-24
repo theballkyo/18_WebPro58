@@ -1,4 +1,8 @@
 if errors
   ul
     for error in errors
-      li #{error.toString()}
+      li
+        if error.getCode()
+          #{error.getCode()} :: #{error.getDefaultMessage()}
+        else
+          #{error.getField()} :: #{error.getDefaultMessage()}

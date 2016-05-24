@@ -6,6 +6,7 @@
 package com.pl.helper;
 
 import com.domingosuarez.boot.autoconfigure.jade4j.JadeHelper;
+import com.pl.model.User;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,5 +22,9 @@ public class SessionHelper {
     
     public Object get(String name) {
         return session.getAttribute(name);
+    }
+    
+    public User getUser() {
+        return (User) session.getAttribute("user");
     }
 }

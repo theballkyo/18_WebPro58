@@ -46,7 +46,7 @@ public class TimeHelper {
 
     public static int countDayNoWeekEnd(Date start, Date end) {
         //Ignore argument check
-        if (start == null || end == null || start.after(end)) {
+        if (start == null || end == null || start.getTime() > end.getTime()) {
             return -1;
         }
         Calendar c1 = Calendar.getInstance();
@@ -77,7 +77,7 @@ public class TimeHelper {
             w2 = Calendar.FRIDAY;
         }
 
-        return daysWithoutWeekendDays - w1 + w2;
+        return daysWithoutWeekendDays - w1 + w2 + 1;
     }
 
     public static String formatDate(Date date) {

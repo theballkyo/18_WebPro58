@@ -9,6 +9,7 @@ import com.pl.model.LeaveRemain;
 import com.pl.model.LeaveRemainDao;
 import com.pl.model.LeaveType;
 import com.pl.model.LeaveTypeDao;
+import com.pl.model.SystemConfigDao;
 import com.pl.model.User;
 import com.pl.model.UserDao;
 import java.util.List;
@@ -34,6 +35,9 @@ public class TestController {
     @Autowired
     private LeaveTypeDao leaveTypeDao;
 
+    @Autowired
+    private SystemConfigDao scd;
+    
     @RequestMapping(value = "genremain")
     @ResponseBody
     public String generateRemain() {
@@ -60,4 +64,14 @@ public class TestController {
         return a;
     }
 
+    @RequestMapping(value = "form")
+    public String form() {
+        return "test";
+    }
+    
+    @RequestMapping(value = "query")
+    @ResponseBody   
+    public String query() {
+        return scd.getYear();
+    }
 }

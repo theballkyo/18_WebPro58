@@ -10,10 +10,13 @@ package com.pl.controllers;
  * @author theba
  */
 import com.pl.helper.EmailHelper;
+import com.pl.model.LeaveType;
+import com.pl.model.LeaveTypeDao;
 import com.pl.model.RoleDao;
 import com.pl.model.SectionDao;
 import com.pl.model.User;
 import com.pl.model.UserDao;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import javax.servlet.http.HttpSession;
@@ -23,15 +26,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import validator.UserLoginValidator;
 
 @Controller
 public class UserController {
 
     @Autowired
-    private UserDao usersDao;
+    private UserDao userDao;
 
     @Autowired
     private RoleDao roleDao;
@@ -39,6 +46,9 @@ public class UserController {
     @Autowired
     private SectionDao sectionDao;
 
+    @Autowired
+    private LeaveTypeDao leaveTypeDao;
+    
     @Autowired
     private HttpSession session;
 
@@ -69,7 +79,10 @@ public class UserController {
     }
 
     @RequestMapping(value = "/member", method = RequestMethod.GET)
-    public String member() {
+    public String member(Model model) {
+        User user = (User) session.getAttribute("user");
+        List<LeaveType> lt = leaveTypeDao.findAllAndGetRemainByUser(user.getUsername());
+        model.addAttribute("leaves", lt);
         return "member";
     }
 
@@ -79,9 +92,26 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String DoLogin(String username, String password) {
+    public String DoLogin(Model model, @ModelAttribute("user") User user, BindingResult result) {
+        UserLoginValidator ulv = new UserLoginValidator();
+        ulv.login(user, result, userDao);
+        
+        if (result.hasErrors()) {
+            return "login";
+        }
+        
+        session.setAttribute("user", ulv.getUser());
+        Hibernate.initialize(user.getSection());
+        if (!sectionDao.findByManager(user.getUsername()).isEmpty()) {
+            session.setAttribute("isManager", true);
+        } else {
+            session.setAttribute("isManager", false);
+        }
+        /*
         User user = usersDao.findByUsernameAndPassword(username, password);
         if (user == null) {
+            
+            model.addAttribute("errors", result.getAllErrors());
             return "login";
         }
         if (!sectionDao.findByManager(user.getUsername()).isEmpty()) {
@@ -90,8 +120,8 @@ public class UserController {
             session.setAttribute("isManager", false);
         }
         session.setAttribute("user", user);
-        Hibernate.initialize(user.getSection());
-
+        
+        */
         return "redirect:/member";
     }
 

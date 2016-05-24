@@ -36,18 +36,18 @@ block rcontent
   p.flow-text
     | แบบฟอร์มลาพักผ่อน
     small  :: ลาล่วงหน้าอย่างน้อย 3 วันทำการ
+  include ./components/showErrors.jade
   form(action='#{url.create("/leave/vacation")}', method='post')
     input(type='hidden', name='leaveType', value='3')
+    input(type='hidden', name='timeType', value='1')
     .row
       .input-field.col.s4 ชื่อ-นามสกุล*
       .input-field.col.s8
-        input#th_name.validate(name='th_name', placeholder='ชื่อ-นามสกุล', type='text', th:value='${session.user.toString()}', disabled='')
-        label(for='th_name') ชื่อ-นามสกุล
+        include ./components/name.jade
     .row
-      .input-field.col.s4 ตำแหน่ง*
+      .input-field.col.s4 หน่วยงาน
       .input-field.col.s8
-        input#section.validate(name='section', placeholder='ตำแหน่ง', type='text', th:value='${session.user.section.thName}', disabled='')
-        label(for='section') ตำแหน่ง
+        include ./components/section.jade
     hr
     .row
       .col.s4 วันที่ลา*

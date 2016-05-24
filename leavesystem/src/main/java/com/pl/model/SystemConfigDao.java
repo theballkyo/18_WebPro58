@@ -5,7 +5,6 @@
  */
 package com.pl.model;
 
-import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -17,9 +16,10 @@ import org.springframework.stereotype.Repository;
  */
 @Transactional
 @Repository
-public interface LeaveTypeDao extends CrudRepository<LeaveType, Integer>{
+public interface SystemConfigDao extends CrudRepository<SystemConfig, Integer>{
     
-    @Query("FROM LeaveType lt LEFT JOIN FETCH lt.leaveRemain lr WHERE lr.username = ?1")
-    public List<LeaveType> findAllAndGetRemainByUser(String username);
+    public SystemConfig findByKey(String key);
     
+    @Query("SELECT sc.value FROM SystemConfig sc WHERE sc.key = 'year'")
+    public String getYear();
 }

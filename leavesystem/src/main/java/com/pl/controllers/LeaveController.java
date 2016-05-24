@@ -6,16 +6,16 @@
 package com.pl.controllers;
 
 import com.pl.helper.EmailHelper;
-import com.pl.helper.TimeHelper;
 import com.pl.leave.LeaveStatus;
-import com.pl.leave.LeaveTimeType;
-import com.pl.leave.LeaveType;
+import com.pl.model.AssociateDeanDao;
+import com.pl.model.DeanDao;
 import com.pl.model.LeaveForm;
 import com.pl.model.LeaveFormDao;
 import com.pl.model.LeaveRemain;
 import com.pl.model.LeaveRemainDao;
 import com.pl.model.Section;
 import com.pl.model.SectionDao;
+import com.pl.model.SystemConfigDao;
 import com.pl.model.User;
 import com.pl.model.UserDao;
 
@@ -23,31 +23,30 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import javax.servlet.ServletContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.time.DateUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import validator.LeaveGiveBirthValidator;
+import validator.LeavePersonalValidator;
 import validator.LeaveSickValidator;
+import validator.LeaveVacationValidator;
+import validator.LeaveWifeValidator;
 
 /**
  *
@@ -70,6 +69,15 @@ public class LeaveController {
     private LeaveRemainDao leaveRemainDao;
 
     @Autowired
+    private DeanDao deanDao;
+
+    @Autowired
+    private AssociateDeanDao associateDeanDao;
+
+    @Autowired
+    private SystemConfigDao systemConfigDao;
+
+    @Autowired
     private EmailHelper email;
 
     @Autowired
@@ -77,6 +85,9 @@ public class LeaveController {
 
     @Autowired
     private HttpServletRequest req;
+
+    @Autowired
+    private ServletContext servletContext;
 
     @RequestMapping(value = "/sick", method = RequestMethod.GET)
     public String getSick(Model model) {
@@ -94,53 +105,37 @@ public class LeaveController {
             BindingResult result,
             MultipartFile medical_certificate) {
 
-        Map<String, String> errors = new HashMap<>();
-        model.addAttribute("errors", errors);
-
         if (!medical_certificate.isEmpty()) {
             try {
                 String fileName = medical_certificate.getOriginalFilename();
 
                 BufferedOutputStream stream = new BufferedOutputStream(
-                        new FileOutputStream(new File(req.getServletContext().getRealPath("/resources/imgs/") + fileName)));
+                        new FileOutputStream(new File(req.getServletContext().getRealPath("/") + "resources/imgs/" + fileName)));
 
                 FileCopyUtils.copy(medical_certificate.getInputStream(), stream);
                 stream.close();
 
             } catch (Exception e) {
-                errors.put("medical_certificate", "การเขียนไฟล์ภาพมีปัญหา");
                 return "leave/sick";
             }
-        } else {
-            errors.put("medical_certificate", "กรุณาเลือกไฟล์ด้วย");
         }
-
-        LeaveSickValidator lsv = new LeaveSickValidator();
+        User user = (User) session.getAttribute("user");
+        LeaveSickValidator lsv = new LeaveSickValidator(user, leaveRemainDao, systemConfigDao.getYear());
         lsv.validate(leaveForm, result);
-        
+
         if (result.hasErrors()) {
-            ra.addFlashAttribute("errors", result.getFieldErrors());
-            /*
-            String a = "";
-            for (FieldError error : result.getFieldErrors()) {
-                a += error.toString();
-            }
-            */
+            result.getFieldError();
+            ra.addFlashAttribute("errors", result.getAllErrors());
             return "redirect:/leave/sick";
         }
-        
-        User user = (User) session.getAttribute("user");
-        Section section = user.getSection();
-
-        leaveForm.setUser(user);
-        leaveForm.setSection(section);
-        leaveForm.setLeaveYear("2016");
 
         leaveFormDao.save(leaveForm);
+        leaveRemainDao.save(leaveForm.getLeaveRemain());
+
+        // Send email .. bla bla bla
         // String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
         // String toAddress = user.getSection().getUser().getEmail();
         // email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
-
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
         //return leaveForm.getLeaveType() +"";
@@ -149,7 +144,7 @@ public class LeaveController {
     @RequestMapping(value = "/personal", method = RequestMethod.GET)
     public String getPersonal(Model model) {
         User user = (User) session.getAttribute("user");
-        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.PERSONAL.value());
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), systemConfigDao.getYear(), com.pl.leave.LeaveType.PERSONAL.value());
         model.addAttribute("remain", lr.getAmount());
         return "leave/personal";
     }
@@ -160,46 +155,18 @@ public class LeaveController {
             Model model,
             @ModelAttribute("leaveForm") LeaveForm leaveForm,
             BindingResult result) {
-
         User user = (User) session.getAttribute("user");
-        Section section = user.getSection();
+        LeavePersonalValidator lpv = new LeavePersonalValidator(user, leaveRemainDao, systemConfigDao.getYear());
+        lpv.validate(leaveForm, result);
 
-        leaveForm.setUser(user);
-        leaveForm.setSection(section);
-        leaveForm.setLeaveYear("2016");
+        if (result.hasErrors()) {
+            result.getFieldError();
+            ra.addFlashAttribute("errors", result.getAllErrors());
+            return "redirect:/leave/personal";
+        }
 
         leaveFormDao.save(leaveForm);
-        // String toAddress = sectionDao.findOne(user.getSectionId()).getUser().getEmail();
-        // String toAddress = user.getSection().getUser().getEmail();
-        // email.send(toAddress, "แจ้งการขอลาป่วย", "<html><body><bold>User แจ้งลางาน</bold></body></html>");
-
-        ra.addFlashAttribute("message", "saveSuccess");
-        return "redirect:/leave/history";
-    }
-
-    @RequestMapping(value = "/givebirth", method = RequestMethod.GET)
-    public String getGiveBirth(Model model) {
-        User user = (User) session.getAttribute("user");
-        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.GIVE_BIRTH.value());
-        model.addAttribute("remain", lr.getAmount());
-        return "leave/givebirth";
-    }
-
-    @RequestMapping(value = "/givebirth", method = RequestMethod.POST)
-    public String saveGiveBirth(
-            RedirectAttributes ra,
-            Model model,
-            @ModelAttribute("leaveForm") LeaveForm leaveForm,
-            BindingResult result) {
-        
-        User user = (User) session.getAttribute("user");
-        Section section = user.getSection();
-
-        leaveForm.setUser(user);
-        leaveForm.setSection(section);
-        leaveForm.setLeaveYear("2016");
-
-        leaveFormDao.save(leaveForm);
+        leaveRemainDao.save(leaveForm.getLeaveRemain());
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
@@ -209,7 +176,7 @@ public class LeaveController {
     public String getVacation(Model model) {
         User user = (User) session.getAttribute("user");
 
-        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.VACATION.value());
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), systemConfigDao.getYear(), com.pl.leave.LeaveType.VACATION.value());
         model.addAttribute("remain", lr.getAmount());
 
         List<User> users = userDao.findBySectionIdAndFetch(user.getSectionId());
@@ -223,19 +190,49 @@ public class LeaveController {
             Model model,
             @ModelAttribute("leaveForm") LeaveForm leaveForm,
             BindingResult result) {
-
         User user = (User) session.getAttribute("user");
-        Section section = user.getSection();
+        LeaveVacationValidator lvv = new LeaveVacationValidator(user, leaveRemainDao, systemConfigDao.getYear(), userDao);
+        lvv.validate(leaveForm, result);
 
-        leaveForm.setUser(user);
-        leaveForm.setSection(section);
-        leaveForm.setLeaveYear("2016");
-        User workRepresent = userDao.findOne(leaveForm.getWorkRepresent());
-        if (workRepresent != null) {
-            leaveForm.setUserWorkRepresent(workRepresent);
+        if (result.hasErrors()) {
+            result.getFieldError();
+            ra.addFlashAttribute("errors", result.getAllErrors());
+            return "redirect:/leave/vacation";
         }
-        
+
         leaveFormDao.save(leaveForm);
+        leaveRemainDao.save(leaveForm.getLeaveRemain());
+
+        ra.addFlashAttribute("message", "saveSuccess");
+        return "redirect:/leave/history";
+    }
+
+    @RequestMapping(value = "/givebirth", method = RequestMethod.GET)
+    public String getGiveBirth(Model model) {
+        User user = (User) session.getAttribute("user");
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), systemConfigDao.getYear(), com.pl.leave.LeaveType.GIVE_BIRTH.value());
+        model.addAttribute("remain", lr.getAmount());
+        return "leave/givebirth";
+    }
+
+    @RequestMapping(value = "/givebirth", method = RequestMethod.POST)
+    public String saveGiveBirth(
+            RedirectAttributes ra,
+            Model model,
+            @ModelAttribute("leaveForm") LeaveForm leaveForm,
+            BindingResult result) {
+        User user = (User) session.getAttribute("user");
+        LeaveGiveBirthValidator lgbv = new LeaveGiveBirthValidator(user, leaveRemainDao, systemConfigDao.getYear());
+        lgbv.validate(leaveForm, result);
+
+        if (result.hasErrors()) {
+            result.getFieldError();
+            ra.addFlashAttribute("errors", result.getAllErrors());
+            return "redirect:/leave/givebirth";
+        }
+
+        leaveFormDao.save(leaveForm);
+        leaveRemainDao.save(leaveForm.getLeaveRemain());
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
@@ -244,7 +241,7 @@ public class LeaveController {
     @RequestMapping(value = "/wife", method = RequestMethod.GET)
     public String getWife(Model model) {
         User user = (User) session.getAttribute("user");
-        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), "2016", com.pl.leave.LeaveType.WIFE.value());
+        LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(user.getUsername(), systemConfigDao.getYear(), com.pl.leave.LeaveType.WIFE.value());
         model.addAttribute("remain", lr.getAmount());
 
         return "leave/wife";
@@ -256,15 +253,18 @@ public class LeaveController {
             Model model,
             @ModelAttribute("leaveForm") LeaveForm leaveForm,
             BindingResult result) {
-
         User user = (User) session.getAttribute("user");
-        Section section = user.getSection();
+        LeaveWifeValidator lwv = new LeaveWifeValidator(user, leaveRemainDao, systemConfigDao.getYear());
+        lwv.validate(leaveForm, result);
 
-        leaveForm.setUser(user);
-        leaveForm.setSection(section);
-        leaveForm.setLeaveYear("2016");
+        if (result.hasErrors()) {
+            result.getFieldError();
+            ra.addFlashAttribute("errors", result.getAllErrors());
+            return "redirect:/leave/givebirth";
+        }
 
         leaveFormDao.save(leaveForm);
+        leaveRemainDao.save(leaveForm.getLeaveRemain());
 
         ra.addFlashAttribute("message", "saveSuccess");
         return "redirect:/leave/history";
@@ -283,19 +283,25 @@ public class LeaveController {
         User user = (User) session.getAttribute("user");
         List<Section> sections = sectionDao.findByManager(user.getUsername());
 
+        // Not manager
         if (sections == null || sections.isEmpty()) {
-
+            return "redirect:/member";
         }
 
-        List<Integer> sectionIds = new LinkedList<>();
-        for (Section section : sections) {
-            sectionIds.add(section.getSectionId());
-        }
-        List<LeaveForm> lfs = null;
-        if (sectionIds.contains(6)) {
-            lfs = (List<LeaveForm>) leaveFormDao.findAll();
+        String username = user.getUsername();
+        String year = systemConfigDao.getYear();
+        int status = LeaveStatus.WAIT.value();
+
+        // 6 is Human resource section.
+        boolean isSuperManager = sectionDao.countByManagerAndSectionId(user.getUsername(), 6) != 0;
+        List<LeaveForm> lfs;
+
+        if (isSuperManager || deanDao.findOne(username) != null) {
+            lfs = leaveFormDao.findByLeaveStatusAndLeaveYearAndUsernameNot(status, year, username);
+        } else if (associateDeanDao.findOne(username) != null) {
+            lfs = leaveFormDao.findForAssociateDeanByUsernameAndYearAndStatus(username, status, year);
         } else {
-            lfs = leaveFormDao.findBySectionIdInAndStatusAndYearForManagerSection(sectionIds, LeaveStatus.WAIT.value(), "2016");
+            lfs = leaveFormDao.findForManagerByUsernameAndStatusAndYear(username, status, year);
         }
         model.addAttribute("lfs", lfs);
         return "leave/list";
@@ -306,14 +312,14 @@ public class LeaveController {
         User user = ((User) session.getAttribute("user"));
         LeaveForm lf = leaveFormDao.findOne(id);
         if (lf == null) {
-            ra.addFlashAttribute("message", "error");
+            ra.addFlashAttribute("message", "not_found");
         } else if (!lf.getUsername().equals(user.getUsername())) {
-            ra.addFlashAttribute("message", "error");
+            ra.addFlashAttribute("message", "owner_error");
         } else if (!lf.isWait()) {
-            ra.addFlashAttribute("message", "waitOnly");
+            ra.addFlashAttribute("message", "wait_only");
         } else {
             leaveFormDao.delete(lf);
-            ra.addFlashAttribute("message", "success");
+            ra.addFlashAttribute("message", "cancel_success");
         }
         return "redirect:/leave/history";
     }
@@ -321,16 +327,31 @@ public class LeaveController {
     @RequestMapping(value = "/approve/{id}")
     public String approve(@PathVariable("id") int id, RedirectAttributes ra) {
         LeaveForm lf = leaveFormDao.findOne(id);
+        User user = (User) session.getAttribute("user");
+
         if (lf == null) {
-            return "null";
-        } else if (lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3))) {
-            ra.addFlashAttribute("message", "No time");
-        } else if (!lf.isWait()) {
-            return "Not wait";
+            ra.addFlashAttribute("message", "not_found");
         } else {
-            lf.setLeaveStatus(LeaveStatus.APRROVE);
-            leaveFormDao.save(lf);
-            ra.addFlashAttribute("message", "success");
+            boolean after3day = lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3));
+            if (!lf.isWait()) {
+                ra.addFlashAttribute("message", "wait_only");
+            } else if (lf.getUsername().equals(user.getUsername())) {
+                ra.addFlashAttribute("message", "no_permission");
+            } else if (after3day) {
+                if (associateDeanDao.exists(user.getUsername())) {
+                    lf.setLeaveStatus(LeaveStatus.APRROVE);
+                    leaveFormDao.save(lf);
+                    ra.addFlashAttribute("message", "success");
+                } else {
+                    ra.addFlashAttribute("message", "no_time");
+                }
+            } else if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
+                lf.setLeaveStatus(LeaveStatus.APRROVE);
+                leaveFormDao.save(lf);
+                ra.addFlashAttribute("message", "success");
+            } else {
+                ra.addFlashAttribute("message", "no_permission");
+            }
         }
         return "redirect:/leave/list";
     }
@@ -338,16 +359,37 @@ public class LeaveController {
     @RequestMapping(value = "/reject/{id}")
     public String reject(@PathVariable("id") int id, RedirectAttributes ra) {
         LeaveForm lf = leaveFormDao.findOne(id);
+        User user = (User) session.getAttribute("user");
+
         if (lf == null) {
-            return "null";
-        } else if (lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3))) {
-            ra.addFlashAttribute("message", "No time");
-        } else if (!lf.isWait()) {
-            return "Not wait";
+            ra.addFlashAttribute("message", "not_found");
         } else {
-            lf.setLeaveStatus(LeaveStatus.REJECT);
-            leaveFormDao.save(lf);
-            ra.addFlashAttribute("message", "success");
+            boolean after3day = lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3));
+            if (!lf.isWait()) {
+                ra.addFlashAttribute("message", "wait_only");
+            } else if (lf.getUsername().equals(user.getUsername())) {
+                ra.addFlashAttribute("message", "no_permission");
+            } else if (after3day) {
+                if (associateDeanDao.exists(user.getUsername())) {
+                    lf.setLeaveStatus(LeaveStatus.REJECT);
+                    leaveFormDao.save(lf);
+                    LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
+                    lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
+                    leaveRemainDao.save(lr);
+                    ra.addFlashAttribute("message", "success");
+                } else {
+                    ra.addFlashAttribute("message", "no_time");
+                }
+            } else if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
+                lf.setLeaveStatus(LeaveStatus.REJECT);
+                leaveFormDao.save(lf);
+                LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
+                lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
+                leaveRemainDao.save(lr);
+                ra.addFlashAttribute("message", "success");
+            } else {
+                ra.addFlashAttribute("message", "no_permission");
+            }
         }
         return "redirect:/leave/list";
     }
