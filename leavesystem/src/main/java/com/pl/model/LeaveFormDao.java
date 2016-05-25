@@ -29,7 +29,31 @@ public interface LeaveFormDao extends CrudRepository<LeaveForm, Integer> {
 
     public List<LeaveForm> findByLeaveStatusAndLeaveYearAndUsernameNot(int status, String year, String username);
     
-    @Query("from LeaveForm lf LEFT OUTER JOIN FETCH lf.user u LEFT OUTER JOIN FETCH u.teacher t LEFT OUTER JOIN FETCH u.staff s LEFT OUTER JOIN FETCH u.section s WHERE s.manager = ?1 AND lf.leaveStatus = ?2 AND lf.leaveYear = ?3 AND lf.leaveCreatedAt > (CURRENT_DATE - 3) AND lf.username != ?1")
+    public List<LeaveForm> findByLeaveStatusAndLeaveYearAndUsernameNotIn(int status, String year, List<String> username);
+    
+    @Query("FROM LeaveForm lf LEFT OUTER JOIN FETCH lf.user u "
+            + "LEFT OUTER JOIN FETCH u.teacher t "
+            + "LEFT OUTER JOIN FETCH u.staff s "
+            + "LEFT OUTER JOIN FETCH u.section s "
+            + "WHERE lf.leaveYear = ?3 AND lf.leaveStatus = ?2 AND lf.username != ?1 "
+            // Section 16 is Teacher
+            + "AND u.sectionId != 16"
+            + "AND u.username NOT IN (SELECT ad.username FROM AssociateDean ad) "
+            + "AND u.username NOT IN (SELECT d.username FROM Dean d)")
+    public List<LeaveForm> findByForSuperManagerByUsernameAndLeaveStatusAndLeaveYear(String username, int status, String year);
+    
+    @Query("FROM LeaveForm lf LEFT OUTER JOIN FETCH lf.user u "
+            + "LEFT OUTER JOIN FETCH u.teacher t "
+            + "LEFT OUTER JOIN FETCH u.staff s "
+            + "LEFT OUTER JOIN FETCH u.section s "
+            + "WHERE s.manager = ?1 "
+            + "AND lf.leaveStatus = ?2 "
+            + "AND lf.leaveYear = ?3 "
+            + "AND lf.leaveCreatedAt > (CURRENT_DATE - 3) "
+            + "AND lf.username != ?1 "
+            + "AND u.username NOT IN (SELECT d.username FROM Dean d) "
+            + "AND u.username NOT IN (SELECT ad.username FROM AssociateDean ad) "
+            + "AND u.username NOT IN (SELECT sec.manager FROM Section sec)") 
     public List<LeaveForm> findForManagerByUsernameAndStatusAndYear(String username, int status, String year);
     
     @Query("FROM LeaveForm lf LEFT OUTER JOIN FETCH lf.user u "
@@ -39,7 +63,8 @@ public interface LeaveFormDao extends CrudRepository<LeaveForm, Integer> {
             + "WHERE (s.manager = ?1 OR lf.leaveCreatedAt <= (CURRENT_DATE - 3)) "
             + "AND lf.leaveYear = ?3 AND lf.leaveStatus = ?2 AND lf.username != ?1 "
             + "AND u.username NOT IN (SELECT d.username FROM Dean d) "
-            + "AND u.username NOT IN (SELECT ad.username FROM AssociateDean ad)") 
+            + "AND u.username NOT IN (SELECT ad.username FROM AssociateDean ad) "
+            + "AND u.username NOT IN (SELECT sec.manager FROM Section sec)") 
     public List<LeaveForm> findForAssociateDeanByUsernameAndYearAndStatus(String username, int status, String year);
      
     @Query("SELECT SUM(lf.leaveTotalDate) FROM LeaveForm lf WHERE lf.username = ?1 AND lf.leaveYear = ?2")

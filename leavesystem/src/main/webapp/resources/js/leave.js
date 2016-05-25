@@ -43,7 +43,7 @@ var calDay = function () {
             }
         }
     } else if ($timeType.val() === "2" || $timeType.val() === "3") {
-        $total.text("1 ");
+        $total.text("0.5 (ครึ่ง)");
     }
 }
 

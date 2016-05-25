@@ -7,6 +7,7 @@ block rcontent
   table
     thead
       tr
+        th ID
         th วันที่เขียน
         th ชื่อ-นามสกุล
         th วันที่
@@ -17,6 +18,8 @@ block rcontent
     tbody
       for lf in lfs
         tr
+          td 
+            a(href='#{url.create("/leave/info/" + lf.leaveId)}') #{lf.leaveId}
           td #{lf.leaveCreatedAtFormat}
           td #{lf.user}
           td #{lf.leaveStartAtFormat} ถึง #{lf.leaveEndAtFormat}
@@ -26,3 +29,4 @@ block rcontent
             a.btn.light-green(href='#{url.create("/leave/approve/" + lf.leaveId)}') ยืนยัน
           td
             a.btn.red(href='#{url.create("/leave/reject/" + lf.leaveId)}') ปฏิเสธ
+  p หมายเหตุ คลิกที่เลข ID เพื่อดูรายละเอียดแบบเต็มของการแจ้งลานั้นๆ

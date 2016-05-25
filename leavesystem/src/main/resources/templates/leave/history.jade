@@ -7,6 +7,7 @@ block rcontent
   table
     thead
       tr
+        th ID
         th วันที่เขียน
         th ประเภท
         th ช่วงเวลา
@@ -15,6 +16,8 @@ block rcontent
     tbody
       for lf in lfs
         tr
+          td 
+            a(href='#{url.create("/leave/info/" + lf.leaveId)}')#{lf.leaveId}
           td #{lf.leaveCreatedAt}
           td #{lf.getThName()}
           td #{lf.leaveStartAt} ถึง #{lf.leaveEndAt}
@@ -28,3 +31,4 @@ block rcontent
           td
             if lf.isWait()
               a.btn.red(href='#{url.create("/leave/cancel/" + lf.leaveId)}') ยกเลิกการลา
+  p หมายเหตุ คลิกที่เลข ID เพื่อดูรายละเอียดแบบเต็มของการแจ้งลานั้นๆ

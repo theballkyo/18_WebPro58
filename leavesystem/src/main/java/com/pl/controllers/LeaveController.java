@@ -292,13 +292,17 @@ public class LeaveController {
         String year = systemConfigDao.getYear();
         int status = LeaveStatus.WAIT.value();
 
+        boolean isDean = deanDao.findOne(username) != null;
+        boolean isAssociateDean = associateDeanDao.findOne(username) != null;
         // 6 is Human resource section.
         boolean isSuperManager = sectionDao.countByManagerAndSectionId(user.getUsername(), 6) != 0;
         List<LeaveForm> lfs;
 
-        if (isSuperManager || deanDao.findOne(username) != null) {
+        if (isDean) {
             lfs = leaveFormDao.findByLeaveStatusAndLeaveYearAndUsernameNot(status, year, username);
-        } else if (associateDeanDao.findOne(username) != null) {
+        } else if (isSuperManager) {
+            lfs = leaveFormDao.findByForSuperManagerByUsernameAndLeaveStatusAndLeaveYear(username, status, year);
+        } else if (isAssociateDean) {
             lfs = leaveFormDao.findForAssociateDeanByUsernameAndYearAndStatus(username, status, year);
         } else {
             lfs = leaveFormDao.findForManagerByUsernameAndStatusAndYear(username, status, year);
@@ -328,69 +332,195 @@ public class LeaveController {
     public String approve(@PathVariable("id") int id, RedirectAttributes ra) {
         LeaveForm lf = leaveFormDao.findOne(id);
         User user = (User) session.getAttribute("user");
-
         if (lf == null) {
             ra.addFlashAttribute("message", "not_found");
+        } else if (lf.getUsername().equals(user.getUsername())) {
+            ra.addFlashAttribute("message", "no_permission");
+        } else if (!lf.isWait()) {
+            ra.addFlashAttribute("message", "wait_only");
         } else {
+            String username = user.getUsername();
+            boolean isDean = deanDao.findOne(username) != null;
+            boolean isAssociateDean = associateDeanDao.findOne(username) != null;
+            // 6 is Human resource section.
+            boolean isSuperManager = sectionDao.countByManagerAndSectionId(user.getUsername(), 6) != 0;
             boolean after3day = lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3));
-            if (!lf.isWait()) {
-                ra.addFlashAttribute("message", "wait_only");
-            } else if (lf.getUsername().equals(user.getUsername())) {
-                ra.addFlashAttribute("message", "no_permission");
-            } else if (after3day) {
-                if (associateDeanDao.exists(user.getUsername())) {
-                    lf.setLeaveStatus(LeaveStatus.APRROVE);
-                    leaveFormDao.save(lf);
-                    ra.addFlashAttribute("message", "success");
-                } else {
-                    ra.addFlashAttribute("message", "no_time");
-                }
-            } else if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
-                lf.setLeaveStatus(LeaveStatus.APRROVE);
-                leaveFormDao.save(lf);
+
+            if (isDean) {
                 ra.addFlashAttribute("message", "success");
-            } else {
-                ra.addFlashAttribute("message", "no_permission");
+            } else if (isAssociateDean && lf.getUser().getSectionId() != 16) {
+                if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
+                    ra.addFlashAttribute("message", "success");
+                } else if (after3day) {
+                    if (sectionDao.findByManager(lf.getUsername()).isEmpty()) {
+                        ra.addFlashAttribute("message", "success");
+                    }
+                }
+            } else if (isSuperManager) {
+                if (lf.getUser().getSectionId() != 16
+                        && deanDao.findOne(lf.getUsername()) == null
+                        && associateDeanDao.findOne(lf.getUsername()) == null) {
+                    ra.addFlashAttribute("message", "success");
+                }
+            } else if (lf.getUser().getSectionId() != 16
+                    && deanDao.findOne(lf.getUsername()) == null
+                    && associateDeanDao.findOne(lf.getUsername()) == null
+                    && lf.getUser().getSection().getManager().equals(user.getUsername())
+                    && !after3day) {
+                ra.addFlashAttribute("message", "success");
             }
+        }
+
+        if (ra.getFlashAttributes().get("message") == null) {
+            ra.addFlashAttribute("message", "no_permission");
+        }
+        if (ra.getFlashAttributes().get("message").equals("success")) {
+//            lf.setLeaveStatus(LeaveStatus.APRROVE);
+//            leaveFormDao.save(lf);
         }
         return "redirect:/leave/list";
     }
 
     @RequestMapping(value = "/reject/{id}")
     public String reject(@PathVariable("id") int id, RedirectAttributes ra) {
+//        LeaveForm lf = leaveFormDao.findOne(id);
+//        User user = (User) session.getAttribute("user");
+//
+//        if (lf == null) {
+//            ra.addFlashAttribute("message", "not_found");
+//        } else {
+//            boolean after3day = lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3));
+//            if (!lf.isWait()) {
+//                ra.addFlashAttribute("message", "wait_only");
+//            } else if (lf.getUsername().equals(user.getUsername())) {
+//                ra.addFlashAttribute("message", "no_permission");
+//            } else if (after3day) {
+//                if (associateDeanDao.exists(user.getUsername())) {
+//                    /*
+//                    lf.setLeaveStatus(LeaveStatus.REJECT);
+//                    leaveFormDao.save(lf);
+//                    LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
+//                    lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
+//                    leaveRemainDao.save(lr);
+//                     */
+//                    ra.addFlashAttribute("message", "success");
+//                } else {
+//                    ra.addFlashAttribute("message", "no_time");
+//                }
+//            } else if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
+//                /*
+//                lf.setLeaveStatus(LeaveStatus.REJECT);
+//                leaveFormDao.save(lf);
+//                LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
+//                lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
+//                leaveRemainDao.save(lr);
+//                 */
+//                ra.addFlashAttribute("message", "success");
+//            } else {
+//                ra.addFlashAttribute("message", "no_permission");
+//            }
+//        }
         LeaveForm lf = leaveFormDao.findOne(id);
         User user = (User) session.getAttribute("user");
-
         if (lf == null) {
             ra.addFlashAttribute("message", "not_found");
+        } else if (lf.getUsername().equals(user.getUsername())) {
+            ra.addFlashAttribute("message", "no_permission");
+        } else if (!lf.isWait()) {
+            ra.addFlashAttribute("message", "wait_only");
         } else {
+            String username = user.getUsername();
+            boolean isDean = deanDao.findOne(username) != null;
+            boolean isAssociateDean = associateDeanDao.findOne(username) != null;
+            // 6 is Human resource section.
+            boolean isSuperManager = sectionDao.countByManagerAndSectionId(user.getUsername(), 6) != 0;
             boolean after3day = lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3));
-            if (!lf.isWait()) {
-                ra.addFlashAttribute("message", "wait_only");
-            } else if (lf.getUsername().equals(user.getUsername())) {
-                ra.addFlashAttribute("message", "no_permission");
-            } else if (after3day) {
-                if (associateDeanDao.exists(user.getUsername())) {
-                    lf.setLeaveStatus(LeaveStatus.REJECT);
-                    leaveFormDao.save(lf);
-                    LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
-                    lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
-                    leaveRemainDao.save(lr);
-                    ra.addFlashAttribute("message", "success");
-                } else {
-                    ra.addFlashAttribute("message", "no_time");
-                }
-            } else if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
-                lf.setLeaveStatus(LeaveStatus.REJECT);
-                leaveFormDao.save(lf);
-                LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
-                lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
-                leaveRemainDao.save(lr);
+
+            if (isDean) {
                 ra.addFlashAttribute("message", "success");
-            } else {
-                ra.addFlashAttribute("message", "no_permission");
+            } else if (isAssociateDean) {
+                if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
+                    ra.addFlashAttribute("message", "success");
+                } else if (after3day) {
+                    if (sectionDao.findByManager(lf.getUsername()).isEmpty()) {
+                        ra.addFlashAttribute("message", "success");
+                    }
+                }
+            } else if (isSuperManager) {
+                if (lf.getUser().getSectionId() != 16
+                        && deanDao.findOne(lf.getUsername()) == null
+                        && associateDeanDao.findOne(lf.getUsername()) == null) {
+                    ra.addFlashAttribute("message", "success");
+                }
+            } else if (lf.getUser().getSectionId() != 16
+                    && deanDao.findOne(lf.getUsername()) == null
+                    && associateDeanDao.findOne(lf.getUsername()) == null
+                    && lf.getUser().getSection().getManager().equals(user.getUsername())
+                    && !after3day) {
+                ra.addFlashAttribute("message", "success");
             }
         }
+
+        if (ra.getFlashAttributes().get("message") == null) {
+            ra.addFlashAttribute("message", "no_permission");
+        }
+        if (ra.getFlashAttributes().get("message").equals("success")) {
+//            lf.setLeaveStatus(LeaveStatus.REJECT);
+//            leaveFormDao.save(lf);
+//            LeaveRemain lr = leaveRemainDao.findByUsernameAndYearAndLeaveTypeId(lf.getUsername(), lf.getLeaveYear(), lf.getLeaveType());
+//            lr.setAmount(lr.getAmount() + lf.getLeaveTotalDate());
+//            leaveRemainDao.save(lr);
+        }
         return "redirect:/leave/list";
+    }
+
+    public String checkPermissionLeave(int leaveId) {
+        return checkPermissionLeave(leaveId, -1);
+    }
+
+    public String checkPermissionLeave(int leaveId, int byStatus) {
+        LeaveForm lf = leaveFormDao.findOne(leaveId);
+        User user = (User) session.getAttribute("user");
+        if (lf == null) {
+            return "not_found";
+        } else if (lf.getUsername().equals(user.getUsername())) {
+            return "no_permission";
+        } else if (byStatus != -1) {
+            if (lf.getLeaveStatus() != byStatus) {
+                return "status_not_match";
+            }
+        }
+        String username = user.getUsername();
+        boolean isDean = deanDao.findOne(username) != null;
+        boolean isAssociateDean = associateDeanDao.findOne(username) != null;
+        // 6 is Human resource section.
+        boolean isSuperManager = sectionDao.countByManagerAndSectionId(user.getUsername(), 6) != 0;
+        boolean after3day = lf.getLeaveCreatedAt().before(DateUtils.addDays(new Date(), -3));
+
+        if (isDean) {
+            return "success";
+        } else if (isAssociateDean && lf.getUser().getSectionId() != 16) {
+            if (lf.getUser().getSection().getManager().equals(user.getUsername())) {
+                return "success";
+            } else if (after3day) {
+                if (sectionDao.findByManager(lf.getUsername()).isEmpty()) {
+                    return "success";
+                }
+            }
+        } else if (isSuperManager) {
+            if (lf.getUser().getSectionId() != 16
+                    && deanDao.findOne(lf.getUsername()) == null
+                    && associateDeanDao.findOne(lf.getUsername()) == null) {
+                return "success";
+            }
+        } else if (lf.getUser().getSectionId() != 16
+                && deanDao.findOne(lf.getUsername()) == null
+                && associateDeanDao.findOne(lf.getUsername()) == null
+                && lf.getUser().getSection().getManager().equals(user.getUsername())
+                && !after3day) {
+            return "success";
+        }
+
+        return "no_permission";
     }
 }
